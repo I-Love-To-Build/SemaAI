@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sema Contributor Studio</title>
+<style>
+:root{
+  --ink:#111827;
+  --muted:#667085;
+  --soft:#f6f7f9;
+  --panel:#ffffff;
+  --line:#e4e7ec;
+  --teal:#0f766e;
+  --teal-2:#12b3a8;
+  --blue:#2563eb;
+  --gold:#b7791f;
+  --rose:#b42318;
+  --green:#087f5b;
+  --shadow:0 16px 40px rgba(16,24,40,.08);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--ink);
+  background:var(--soft);
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{width:100%;min-height:100vh;margin:0;padding:0;display:grid;grid-template-columns:288px minmax(0,1fr);gap:0}
+.sidebar,.topbar,.card,.task-board,.workbench,.modal-card{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow)}
+.sidebar{border-radius:0;padding:18px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;background:#0b1220;color:#fff;border-color:#111827;border-width:0 1px 0 0;box-shadow:none}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.mark{width:42px;height:42px;border-radius:12px;background:#fff;color:#0b1220;display:grid;place-items:center;font-weight:900;font-size:1.2rem}
+.brand h1{font-size:1rem;margin:0;line-height:1.1}.brand p{margin:3px 0 0;color:#98a2b3;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.nav{display:grid;gap:7px}
+.nav button{border:0;background:transparent;color:#cbd5e1;border-radius:12px;padding:11px 12px;text-align:left;font-weight:850;display:flex;align-items:center;gap:10px}
+.nav button:hover,.nav button.active{background:#1f2937;color:#fff}
+.icon{width:24px;height:24px;border-radius:8px;background:#111827;border:1px solid #344054;display:grid;place-items:center;font-size:.72rem;font-weight:900;color:#d1e9ff}
+.side-note{margin-top:auto;background:#111827;color:#fff;border:1px solid #344054;border-radius:15px;padding:14px;overflow:hidden;position:relative}
+.side-note:after{display:none}
+.side-note span{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#c9d2df;font-weight:900}
+.side-note strong{display:block;margin-top:8px;font-size:1.25rem;line-height:1.15}
+.main{min-width:0;display:grid;gap:18px;padding:20px 24px 28px}
+.topbar{border-radius:16px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+.topbar h2{margin:0;font-size:1.25rem}.topbar p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+.profile-pill{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 8px 7px 12px;font-weight:850}
+.avatar{width:32px;height:32px;border-radius:50%;background:#fbf0dc;color:#875a18;display:grid;place-items:center}
+.btn{border:1px solid transparent;border-radius:11px;padding:10px 13px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px}
+.btn-primary{background:#111827;color:#fff}.btn-secondary{background:#fff;border-color:var(--line);color:var(--ink)}.btn-danger{background:#fff;border-color:#efc7c1;color:var(--rose)}
+.grid{display:grid;gap:16px;align-items:start}.dash{grid-template-columns:minmax(0,1fr) 330px}.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{border-radius:16px;padding:16px}
+.card h3{margin:0;font-size:1rem}.card p,.muted{margin:6px 0 0;color:var(--muted);line-height:1.48}
+.metric .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:900}.metric .num{font-size:2rem;font-weight:950;margin-top:7px}.metric .hint{font-size:.8rem;color:var(--muted);font-weight:750;margin-top:4px}
+.kpi-strip{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;min-height:92px}
+.kpi .label{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:900}.kpi .num{font-size:1.45rem;font-weight:950;margin-top:6px}.kpi .hint{font-size:.76rem;color:var(--muted);font-weight:750;margin-top:4px}
+.home-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(320px,.8fr);gap:16px}
+.action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.action-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px;display:grid;gap:8px}
+.action-card strong{font-size:1rem}.action-card span{color:var(--muted);font-size:.84rem;line-height:1.4}
+.tool-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tool-pill{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;font-weight:850;color:#344054;font-size:.84rem}
+.ops-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ops-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px;display:grid;gap:10px}
+.ops-card h3,.ops-card h4{margin:0}.ops-card p{margin:0;color:var(--muted);font-size:.86rem;line-height:1.45}
+.role-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.role-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px}
+.role-card strong{display:block}.role-card span{display:block;color:var(--muted);font-size:.82rem;margin-top:5px;line-height:1.35}
+.task-board{border-radius:18px;padding:16px}.section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}.section-head h3{margin:0;font-size:1.1rem}.section-head p{margin:5px 0 0;color:var(--muted);font-size:.9rem}
+.missions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.mission{border:1px solid var(--line);border-radius:15px;padding:14px;background:#fff;display:grid;gap:12px}
+.mission strong{font-size:1.02rem}.mission p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.45}.mission .meta{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:.8rem;font-weight:850}
+.mission.active{border-color:#98a2b3;background:#f9fafb}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:6px 9px;background:#f5f1e7;color:#695f4d;font-size:.76rem;font-weight:900}
+.badge.good{background:#ecfdf3;color:var(--green)}.badge.warn{background:#fffaeb;color:#8a5a10}.badge.hot{background:#eff8ff;color:#175cd3}
+.workbench{border-radius:16px;display:grid;grid-template-columns:280px minmax(0,1fr);overflow:hidden}
+.guide{background:#f9fafb;border-right:1px solid var(--line);padding:16px}.guide h3{margin:0 0 8px}.guide ol{padding-left:18px;margin:12px 0 0;color:#485366;font-weight:700;line-height:1.45}.guide li+li{margin-top:8px}
+.work{padding:18px}.lang-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.pill{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:#fff;color:#596477;font-weight:850;font-size:.84rem}.pill.active{background:#e8f4f2;border-color:rgba(15,118,110,.3);color:var(--teal)}
+.language-switcher{display:grid;grid-template-columns:minmax(220px,340px) auto;gap:10px;align-items:end;margin:12px 0}.language-switcher label{margin:0 0 6px}.language-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-bottom:1px}
+.source{background:#f9fafb;border:1px solid var(--line);border-radius:14px;padding:15px;font-weight:850;line-height:1.55;margin:12px 0}.source small{display:block;margin-top:8px;color:var(--muted);font-weight:750}
+.toolbar{display:grid;grid-template-columns:minmax(0,1fr) 180px 160px;gap:10px;margin:12px 0}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-weight:900;color:#596477}.tab.active{background:#18233b;color:#fff;border-color:#18233b}
+.corpus-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.corpus-card{border:1px solid var(--line);border-radius:13px;background:#fff;padding:12px;min-height:106px;display:flex;flex-direction:column;gap:8px}
+.corpus-card strong{font-size:.96rem}.corpus-card span{color:var(--muted);font-size:.8rem;line-height:1.35}.corpus-card .foot{margin-top:auto;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.split{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}
+.tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tool-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px;display:grid;gap:10px}
+.tool-card h4{margin:0;font-size:.98rem}.tool-card p{margin:0;color:var(--muted);font-size:.86rem;line-height:1.45}
+.tool-card .state{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto}
+.schema{font-family:Consolas,Menlo,monospace;background:#111827;color:#dbe7ff;border-radius:13px;padding:14px;overflow:auto;font-size:.78rem;line-height:1.5}
+.verify-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.verify-rule{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px}
+.verify-rule strong{display:block}.verify-rule span{display:block;color:var(--muted);font-size:.82rem;margin-top:4px;line-height:1.4}
+.meter{height:10px;background:#ebe7dc;border-radius:999px;overflow:hidden}.meter span{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--gold))}
+.studio-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px}
+.record-console{border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px}
+.record-target{border:1px solid #d0d5dd;border-radius:16px;background:#f9fafb;padding:22px;margin:14px 0}
+.record-target strong{display:block;font-size:1.3rem;line-height:1.35}.record-target span{display:block;margin-top:10px;color:var(--muted);font-weight:800}
+.control-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.audio-meter{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;height:46px;align-items:end;margin:14px 0;padding:10px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.audio-meter i{display:block;background:#111827;border-radius:999px;min-height:6px}
+label{display:block;margin:14px 0 7px;font-weight:900}textarea,input,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;color:var(--ink);outline:none}textarea{min-height:132px;resize:vertical;line-height:1.5}textarea:focus,input:focus,select:focus{border-color:var(--teal-2);box-shadow:0 0 0 4px rgba(20,163,154,.15)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.queue{display:grid;gap:10px}.queue-item{border:1px solid var(--line);border-radius:13px;background:#fff;padding:12px}.queue-item strong{display:block}.queue-item span{display:block;color:var(--muted);font-size:.84rem;margin-top:4px;line-height:1.4}
+.progress{height:8px;background:#ece8dc;border-radius:999px;overflow:hidden;margin-top:10px}.bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold))}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;border-bottom:1px solid var(--line);padding:10px 8px}th{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.empty{padding:26px;border:1px dashed #d1cabb;border-radius:14px;background:#fffdf8;text-align:center;color:var(--muted);font-weight:800}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;border-radius:999px;padding:12px 16px;font-weight:900;opacity:0;transition:.18s;z-index:10}.toast.show{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(18,24,38,.68);display:none;align-items:center;justify-content:center;padding:18px;z-index:9}.modal.show{display:flex}.modal-card{width:min(680px,100%);border-radius:18px;padding:18px}
+@media(max-width:1050px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.main{padding:14px}.dash,.workbench,.split,.studio-grid,.home-grid{grid-template-columns:1fr}.guide{border-right:0;border-bottom:1px solid var(--line)}.corpus-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tool-grid,.verify-grid,.kpi-strip,.ops-grid,.role-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.topbar{align-items:flex-start;flex-direction:column}.metrics,.missions,.corpus-grid,.toolbar,.control-bar,.language-switcher,.action-grid,.tool-list,.kpi-strip,.ops-grid,.role-grid{grid-template-columns:1fr}.profile-pill{width:100%;justify-content:space-between}.actions .btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="mark">S</div><div><h1>Sema Studio</h1><p>Contributor Portal</p></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-note"><span>Live standard</span><strong>Quality first. Volume second.</strong></div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><h2 id="pageTitle">Dashboard</h2><p id="pageSub">Pick a mission, complete assignments, and watch your quality score rise.</p></div>
+      <div class="profile-pill"><span class="avatar" id="avatar">J</span><span id="profileName">Contributor</span><button class="btn btn-secondary" id="profileBtn">Profile</button></div>
+    </header>
+    <section id="view"></section>
+  </main>
+</div>
+<div class="modal" id="profileModal"><div class="modal-card" id="profileCard"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const LANGS=[
+  ["sw","Kiswahili",true,"Lingua franca"],["en","Kenyan English",false,"Official"],["sheng","Sheng",true,"Urban mixed"],
+  ["kikuyu","Kikuyu",false,"Bantu"],["kamba","Kamba",false,"Bantu"],["dholuo","Dholuo",false,"Nilotic"],["luhya","Luhya",false,"Bantu"],
+  ["bukusu","Bukusu",true,"Luhya cluster"],["maragoli","Maragoli",true,"Luhya cluster"],["wanga","Wanga",true,"Luhya cluster"],["tachoni","Tachoni",true,"Luhya cluster"],["idakho","Idakho",true,"Luhya cluster"],["isukha","Isukha",true,"Luhya cluster"],["tiriki","Tiriki",true,"Luhya cluster"],
+  ["gusii","Gusii",false,"Bantu"],["kuria","Kuria",true,"Bantu"],["meru","Meru",false,"Bantu"],["embu","Embu",true,"Bantu"],["mbeere","Mbeere",true,"Bantu"],["tharaka","Tharaka",true,"Bantu"],["chuka","Chuka",true,"Bantu"],
+  ["giri","Giriama",true,"Mijikenda"],["digo","Digo",true,"Mijikenda"],["duruma","Duruma",true,"Mijikenda"],["chonyi","Chonyi",true,"Mijikenda"],["jibana","Jibana",true,"Mijikenda"],["kambe","Kambe",true,"Mijikenda"],["kauma","Kauma",true,"Mijikenda"],["rabai","Rabai",true,"Mijikenda"],["ribe","Ribe",true,"Mijikenda"],
+  ["poko","Pokomo",true,"Bantu"],["taita","Taita",true,"Bantu"],["taveta","Taveta",true,"Bantu"],["dawida","Dawida",true,"Bantu"],["sagalla","Sagalla",true,"Bantu"],["segeju","Segeju",true,"Bantu"],
+  ["kipsigis","Kipsigis",false,"Kalenjin"],["nandi","Nandi",false,"Kalenjin"],["keiyo","Keiyo",true,"Kalenjin"],["marakwet","Marakwet",true,"Kalenjin"],["tugen","Tugen",true,"Kalenjin"],["pokot","Pokot",true,"Kalenjin"],["sabaot","Sabaot",true,"Kalenjin"],["terik","Terik",true,"Kalenjin"],["ogiek","Ogiek",true,"Kalenjin"],
+  ["maasai","Maasai",false,"Nilotic"],["samburu","Samburu",true,"Nilotic"],["ilchamus","Ilchamus",true,"Nilotic"],["turk","Turkana",false,"Nilotic"],
+  ["somali","Somali",false,"Cushitic"],["borana","Borana",true,"Cushitic"],["rendille","Rendille",true,"Cushitic"],["orma","Orma",true,"Cushitic"],["gabra","Gabra",true,"Cushitic"],["burji","Burji",true,"Cushitic"],["sakuye","Sakuye",true,"Cushitic"],["garre","Garre",true,"Cushitic"],["aweer","Aweer / Boni",true,"Cushitic"],["dahalo","Dahalo",true,"Cushitic"],
+  ["yaaku","Yaaku",true,"Endangered"],["elmolo","El Molo",true,"Endangered"],["daasanach","Daasanach",true,"Cushitic"],["suba","Suba",true,"Bantu"],["bajuni","Bajuni",true,"Coastal"],["nubian","Kenyan Nubian",true,"Nubian"],["arabic","Kenyan Arabic",false,"Community"],["gujarati","Gujarati Kenya",false,"Community"],["hindi","Hindi Kenya",false,"Community"]
+].map(([code,label,need,family])=>({code,label,need,family}));
+const CORE_WORDS=[
+  "I","you","we","they","he","she","child","mother","father","family","home","water","food","fire","road","market","school","hospital","doctor","nurse",
+  "medicine","pain","fever","headache","cough","blood","pregnant","emergency","help","danger","safe","today","tomorrow","yesterday","morning","evening",
+  "now","later","near","far","inside","outside","left","right","yes","no","please","thank you","sorry","name","age","money","price","work","farm",
+  "rain","sun","house","door","phone","message","listen","speak","repeat","understand","go","come","bring","take","buy","sell","eat","drink","sleep",
+  "walk","wait","sit","stand","open","close","good","bad","big","small","hot","cold","clean","dirty","new","old","fast","slow","one","two","three",
+  "many","few","all","none","who","what","where","when","why","how","because","if","and","or","but","with","without","before","after","again"
+];
+const PHRASES=[
+  "How are you today?","Where is the nearest hospital?","I need help now.","Please call a doctor.","How much does this cost?","Can I get a discount?",
+  "I do not understand.","Can you repeat that?","My child is sick.","I am looking for the market.","The meeting starts in the morning.",
+  "Please bring clean water.","I need to speak to a nurse.","Where can I charge my phone?","I am going home now.","Thank you for your help."
+];
+const SENTENCES=[
+  "I have a headache and a fever.","My child needs help with their schoolwork.","Please call a doctor, it is an emergency.",
+  "The children are going to school in the morning.","My family is waiting outside the hospital.","I am feeling much better today.",
+  "Where can I buy fresh vegetables near here?","The medicine should be taken after eating food.","The road is closed because of heavy rain.",
+  "I need someone who can translate for my grandmother."
+];
+const BASE_CORPUS=[
+  ...CORE_WORDS.map((text,i)=>({id:`w${i+1}`,unit:"word",text,domain:"Core vocabulary",priority:i<40?3:2})),
+  ...PHRASES.map((text,i)=>({id:`p${i+1}`,unit:"phrase",text,domain:i<8?"Daily life":"Community",priority:2})),
+  ...SENTENCES.map((text,i)=>({id:`s${i+1}`,unit:"sentence",text,domain:i<4?"Health & safety":"Daily life",priority:2}))
+];
+const SCALE_TARGET=1200000;
+const AUDIO_SEED_TARGET=2400000;
+const WORLD_CORPUS_VERSION="world-corpus-v1";
+const AUDIO_SEED_VERSION="audio-seed-v1";
+const WORLD_SOURCES=[
+  ["Wiktionary-style lexicon","General words, variants, parts of speech"],
+  ["Frequency lists","Most common words first for useful coverage"],
+  ["Domain glossaries","Health, legal, school, farming, finance, transport"],
+  ["Community imports","Contributor-nominated words, idioms, proverbs"],
+  ["Parallel corpora","Sentence and phrase examples for context"],
+  ["Field recordings","Audio paired to approved translations"]
+];
+const VIRTUAL_UNITS=["word","phrase","sentence","term","idiom","proverb"];
+const VIRTUAL_DOMAINS=["Core vocabulary","Health","Legal","Education","Agriculture","Transport","Commerce","Government","Emergency","Family","Technology","Religion","Culture","Environment","Finance","Community vocabulary"];
+const AUDIO_DOMAINS=["Daily life","Health","Emergency","Commerce","Education","Agriculture","Transport","Family","Government","Culture","Technology","Legal"];
+const AUDIO_PROMPTS={
+  "Daily life":["I am going to the market after breakfast.","Please wait for me near the main road.","We will meet at home in the evening.","Can you show me the way to the water point?"],
+  "Health":["I have had a fever since yesterday evening.","Please tell the nurse where the pain started.","The child needs medicine after eating food.","I am allergic to this medicine."],
+  "Emergency":["Please call an ambulance immediately.","There is a fire near the shop.","My child is missing and needs help.","The road is flooded and people cannot cross."],
+  "Commerce":["How much is one kilogram of maize flour?","Please write the total amount on the receipt.","Can I pay using mobile money?","The price is too high for me today."],
+  "Education":["The teacher asked the children to read aloud.","My daughter needs help with her homework.","The school meeting begins at nine in the morning.","Please bring the exercise book tomorrow."],
+  "Agriculture":["The maize needs rain before the end of the week.","The cow has not eaten since morning.","We are planting beans near the river.","The fertilizer should be kept away from children."],
+  "Transport":["The bus to town leaves in ten minutes.","Please stop at the next stage.","How much is the fare to the hospital?","The motorbike rider is waiting outside."],
+  "Family":["My grandmother is resting inside the house.","The children are playing near the compound.","Please greet your father when you arrive.","We are preparing food for the visitors."],
+  "Government":["I need help filling this county form.","Where can I collect my identity card?","The public meeting has been moved to Friday.","Please show me the office for social services."],
+  "Culture":["The elders will speak before the ceremony begins.","This song is usually sung during harvest time.","Please explain the meaning of that proverb.","The family will gather after sunset."],
+  "Technology":["My phone battery is almost empty.","Please send the message again.","The network is weak in this village.","Can you help me change the password?"],
+  "Legal":["I want to report the matter at the police station.","Please read the statement before signing.","The witness will speak after the officer arrives.","I need someone to explain my rights."]
+};
+const PRODUCTION_TOOLS=[
+  ["Corpus ingestion","CSV, TSV, JSONL, spreadsheet, dictionary, and field-list imports with domain tagging.","Ready"],
+  ["Deduplication","Normalize case, punctuation, whitespace, and near-duplicate spellings before routing tasks.","Ready"],
+  ["Assignment routing","Send words, phrases, terms, sentences, idioms, and recordings to qualified contributors.","Ready"],
+  ["Consensus review","Require multiple independent validators before final approval on sensitive domains.","Ready"],
+  ["Reviewer calibration","Seed known-answer tests into reviewer queues and track reviewer accuracy.","Ready"],
+  ["Quality sampling","Randomly audit approved work by language, contributor, domain, and risk level.","Ready"],
+  ["Audio QA","Track clipping, silence, duration, environment, and device metadata for every recording.","Ready"],
+  ["Speaker balancing","Monitor speaker coverage by language, region, gender, age band, device, and environment.","Ready"],
+  ["Transcription pass","Allow contributors to transcribe spontaneous audio before translation or review.","Ready"],
+  ["Forced alignment","Align approved audio to text for ASR and TTS training pipelines.","Ready"],
+  ["PII and safety screening","Flag phone numbers, names, addresses, medical identifiers, and unsafe content.","Ready"],
+  ["ASR evaluation","Track word error rate by language, speaker group, domain, and recording condition.","Ready"],
+  ["TTS evaluation","Collect naturalness, intelligibility, and pronunciation ratings from native speakers.","Ready"],
+  ["License and consent registry","Keep consent, usage rights, withdrawal status, and dataset release tier auditable.","Ready"],
+  ["Audit trail","Record contributor, reviewer, timestamp, version, decision, and notes for each item.","Ready"],
+  ["Export contracts","Approved-only JSON/CSV exports with stable IDs and train/dev/test splits.","Ready"]
+];
+const VERIFY_RULES=[
+  ["Two-person validation","Standard text needs two agreeing reviewers before approval."],
+  ["Three-person validation","Health, legal, emergency, and child-safety domains need stricter consensus."],
+  ["Disagreement queue","Conflicting reviews are escalated to senior reviewers or language leads."],
+  ["Gold tasks","Known-answer checks measure contributor and reviewer reliability."],
+  ["Duplicate guard","Imported corpus items are normalized and checked before becoming assignments."],
+  ["Audio technical QA","Reject clipping, excessive silence, low volume, high noise, wrong prompt, or mismatched language."],
+  ["Speaker diversity check","Do not export a language dataset until speaker distribution is balanced enough for model training."],
+  ["Consent gate","Every recording must have contributor consent and withdrawal traceability."],
+  ["Audit requirement","Every change keeps contributor, reviewer, timestamp, note, and status history."]
+];
+const OPERATIONS_CARDS=[
+  ["Coverage gaps","Languages and domains that need more words, sentences, recordings, or reviews.","Review"],
+  ["Consent checks","Recordings missing consent confirmation, speaker profile, or release permission.","Resolve"],
+  ["Audio quality","Recordings with low volume, clipping, silence, noise, or wrong prompt reports.","Fix"],
+  ["Review backlog","Translations, recordings, and transcriptions waiting for independent validation.","Validate"],
+  ["Speaker balance","Languages that need more age-band, region, gender, device, and environment diversity.","Balance"],
+  ["Language guidelines","Spelling choices, dialect notes, reviewer examples, and accepted variants.","Maintain"],
+  ["Disputes","Items where reviewers disagree and a language lead needs to make a final call.","Decide"],
+  ["Release readiness","Approved work that is ready for final sampling, packaging, and dataset release.","Prepare"]
+];
+const ROLES=[
+  ["Contributor","Translate, record, nominate corpus items, report issues."],
+  ["Reviewer","Validate text/audio, leave notes, flag unsafe or low-quality work."],
+  ["Language lead","Manage language-specific guidelines, disputes, coverage, and reviewer calibration."],
+  ["Admin","Import corpora, configure workflows, export datasets, manage roles and rewards."]
+];
+const REWARD_TIERS=[
+  ["Starter","0-49 approved items","Practice tasks, onboarding, calibration."],
+  ["Bronze","50-249 approved items","Priority queues and public contributor badge."],
+  ["Silver","250-999 approved items","Reviewer eligibility and reward review."],
+  ["Gold","1000+ approved items","Language lead nomination and advanced QA tasks."]
+];
+const NAV=[
+  ["dashboard","D","Dashboard"],["corpus","C","World Corpus"],["missions","M","Missions"],["work","W","Workbench"],["audio","A","Audio Studio"],["review","R","Review"],["systems","O","Operations"],["pipeline","P","Pipeline"],["rewards","$","Rewards"],["leads","L","Leads"],["ledger","J","Ledger"],["admin","A","Admin"]
+];
+let state={tab:"dashboard",lang:"giri",mode:"word",unit:"word",query:"",domain:"all",page:0,audioPage:0,selectedItem:null,profile:null,recorder:null,chunks:[],blob:null};
+const $=s=>document.querySelector(s);
+const toast=m=>{const el=$("#toast");el.textContent=m;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2200)};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const esc=s=>{const d=document.createElement("div");d.textContent=s??"";return d.innerHTML};
+const langLabel=c=>LANGS.find(l=>l.code===c)?.label||c;
+const entries=()=>JSON.parse(localStorage.getItem("semaEntries")||"[]");
+const saveEntries=a=>localStorage.setItem("semaEntries",JSON.stringify(a));
+const customCorpus=()=>JSON.parse(localStorage.getItem("semaCorpus")||"[]");
+const saveCustomCorpus=a=>localStorage.setItem("semaCorpus",JSON.stringify(a));
+const corpusIndex=()=>JSON.parse(localStorage.getItem("semaCorpusIndex")||`{"enabled":true,"version":"${WORLD_CORPUS_VERSION}","count":${SCALE_TARGET}}`);
+const saveCorpusIndex=i=>localStorage.setItem("semaCorpusIndex",JSON.stringify(i));
+const audioIndex=()=>JSON.parse(localStorage.getItem("semaAudioIndex")||`{"enabled":true,"version":"${AUDIO_SEED_VERSION}","count":${AUDIO_SEED_TARGET}}`);
+const saveAudioIndex=i=>localStorage.setItem("semaAudioIndex",JSON.stringify(i));
+const profile=()=>JSON.parse(localStorage.getItem("semaProfile")||"null");
+const saveProfile=p=>localStorage.setItem("semaProfile",JSON.stringify(p));
+function corpus(){
+  const extra=customCorpus();
+  return [...BASE_CORPUS,...extra].map(item=>({...item,source:item.source||"Sema starter"}));
+}
+function totalIndexedCorpus(){return Math.max(corpusIndex().count||0,corpus().length)}
+function virtualItem(n){
+  const unit=VIRTUAL_UNITS[n%VIRTUAL_UNITS.length], domain=VIRTUAL_DOMAINS[n%VIRTUAL_DOMAINS.length];
+  const padded=String(n+1).padStart(7,"0");
+  const labels={word:"world lexical item",phrase:"global phrase",sentence:"context sentence",term:"domain term",idiom:"community idiom",proverb:"cultural proverb"};
+  return {id:`vx${padded}`,unit,text:`${labels[unit]} ${padded}`,domain,priority:n<50000?3:2,source:"World corpus index"};
+}
+function virtualAudioSeed(n){
+  const domain=AUDIO_DOMAINS[n%AUDIO_DOMAINS.length], padded=String(n+1).padStart(7,"0");
+  const prompts=AUDIO_PROMPTS[domain]||AUDIO_PROMPTS["Daily life"];
+  return {id:`aud${padded}`,unit:"audio_seed",text:prompts[n%prompts.length],domain,priority:n<100000?3:2,source:"Audio seed index"};
+}
+function indexedCorpusPage(offset=0,limit=60){
+  const actual=corpus();
+  const out=[];
+  for(let i=0;i<limit;i++){
+    const idx=offset+i;
+    out.push(actual[idx]||virtualItem(idx));
+  }
+  return out;
+}
+function itemById(id){
+  const actual=corpus().find(i=>i.id===id);
+  if(actual)return actual;
+  if(id&&id.startsWith("vx")){
+    const n=Math.max(0,parseInt(id.slice(2),10)-1);
+    return virtualItem(n);
+  }
+  return null;
+}
+function nextIndexedAssignment(unit,done){
+  const local=corpus().find(item=>item.unit===unit&&!done.has(item.id));
+  if(local)return local;
+  for(let i=0;i<5000;i++){
+    const item=virtualItem(i+state.page*60);
+    if(item.unit===unit&&!done.has(item.id))return item;
+  }
+  return virtualItem(0);
+}
+function filteredCorpus(){
+  const q=state.query.trim().toLowerCase();
+  return corpus().filter(item=>(state.unit==="all"||item.unit===state.unit)&&(state.domain==="all"||item.domain===state.domain)&&(!q||item.text.toLowerCase().includes(q)||item.domain.toLowerCase().includes(q)));
+}
+function domains(){return ["all",...new Set(corpus().map(i=>i.domain))]}
+function ensureProfile(){
+  state.profile=profile();
+  if(!state.profile){
+    state.profile={name:"Joram",county:"Nairobi",languages:["giri","sw"],quality:96,level:"Founding Contributor",joined:Date.now()};
+    saveProfile(state.profile);
+  }
+  $("#profileName").textContent=state.profile.name;
+  $("#avatar").textContent=(state.profile.name||"S").slice(0,1).toUpperCase();
+}
+function stats(){
+  const all=entries(), mine=all.filter(e=>e.by===state.profile.name), lang=all.filter(e=>e.lang===state.lang);
+  const items=corpus();
+  const doneItems=new Set(lang.filter(e=>e.type==="translation").map(e=>e.itemId));
+  const translations=lang.filter(e=>e.type==="translation"&&e.status!=="rejected");
+  const recorded=new Set(lang.filter(e=>e.type==="recording").map(e=>e.refId));
+  return {
+    all,mine,approved:mine.filter(e=>e.status==="approved").length,pending:mine.filter(e=>e.status==="pending").length,
+    corpusTotal:totalIndexedCorpus(),localCorpus:items.length,wordTotal:Math.round(totalIndexedCorpus()*0.62),phraseTotal:Math.round(totalIndexedCorpus()*0.18),sentenceTotal:Math.round(totalIndexedCorpus()*0.12),
+    scaleProgress:Math.round(totalIndexedCorpus()/SCALE_TARGET*10000)/100,
+    coverage:Math.round(doneItems.size/Math.max(1,totalIndexedCorpus())*100),translateLeft:Math.max(0,totalIndexedCorpus()-doneItems.size),
+    recordLeft:translations.filter(t=>!recorded.has(t.id)).length,reviewLeft:all.filter(e=>e.status==="pending"&&e.by!==state.profile.name).length
+  };
+}
+function renderNav(){
+  $("#nav").innerHTML=NAV.map(([id,ic,label])=>`<button class="${state.tab===id?"active":""}" data-tab="${id}"><span class="icon">${ic}</span>${label}</button>`).join("");
+  document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{state.tab=b.dataset.tab;render()});
+}
+function setTitle(title,sub){$("#pageTitle").textContent=title;$("#pageSub").textContent=sub}
+function metrics(s){
+  return `<div class="grid metrics">
+    <div class="card metric"><div class="label">Quality score</div><div class="num">${state.profile.quality}%</div><div class="hint">Based on approved work</div></div>
+    <div class="card metric"><div class="label">Corpus items</div><div class="num">${s.corpusTotal}</div><div class="hint">Target ${SCALE_TARGET.toLocaleString()}</div></div>
+    <div class="card metric"><div class="label">Pending</div><div class="num">${s.pending}</div><div class="hint">Awaiting review</div></div>
+    <div class="card metric"><div class="label">${langLabel(state.lang)}</div><div class="num">${s.coverage}%</div><div class="hint">Corpus coverage</div></div>
+  </div>`;
+}
+function missionCards(s){
+  return `<div class="missions">
+    ${mission("word","Words",`${s.wordTotal} in corpus`,"Translate high-frequency vocabulary before anything else.")}
+    ${mission("phrase","Phrases",`${s.phraseTotal} phrases`,"Capture everyday expressions and short utterances.")}
+    ${mission("sentence","Sentences",`${s.sentenceTotal} sentences`,"Translate longer context-rich examples.")}
+    ${mission("record","Record",`${s.recordLeft} ready`,"Read approved translations for speech model training.")}
+    ${mission("review","Review",`${s.reviewLeft} pending`,"Validate quality before data enters the training set.")}
+  </div>`;
+}
+function mission(mode,title,count,copy){
+  return `<button class="mission ${state.mode===mode?"active":""}" data-mode="${mode}">
+    <span class="meta"><span class="badge ${mode==="review"?"warn":"hot"}">${count}</span><span>${mode==="record"?"Audio":mode==="review"?"QA":"Text"}</span></span>
+    <strong>${title}</strong><p>${copy}</p><span class="btn btn-secondary">Open mission</span>
+  </button>`;
+}
+function langPills(){
+  const current=LANGS.find(l=>l.code===state.lang)||LANGS[0];
+  return `<div class="language-switcher"><div><label>Target language</label><select id="langSelect">${LANGS.map(l=>`<option value="${l.code}" ${state.lang===l.code?"selected":""}>${l.label} - ${l.family}</option>`).join("")}</select></div><div class="language-meta"><span class="badge ${current.need?"hot":"good"}">${current.need?"priority coverage":"seeded coverage"}</span><span class="badge">${LANGS.length} Kenya languages</span><span class="badge">${current.family}</span></div></div>`;
+}
+function corpusTools(){
+  return `<div class="tabs">
+    ${["word","phrase","sentence","term","idiom","proverb","all"].map(u=>`<button class="tab ${state.unit===u?"active":""}" data-unit="${u}">${u==="all"?"All units":u+"s"}</button>`).join("")}
+  </div>
+  <div class="toolbar">
+    <input id="searchCorpus" value="${esc(state.query)}" placeholder="Search words, phrases, domains...">
+    <select id="domainFilter">${domains().map(d=>`<option value="${esc(d)}" ${state.domain===d?"selected":""}>${d==="all"?"All domains":esc(d)}</option>`).join("")}</select>
+    <button class="btn btn-secondary" id="clearFilters">Clear filters</button>
+  </div>`;
+}
+function bindCorpusTools(){
+  document.querySelectorAll("[data-unit]").forEach(b=>b.onclick=()=>{state.unit=b.dataset.unit;state.mode=state.unit==="all"?"word":state.unit;state.page=0;render()});
+  const search=$("#searchCorpus"); if(search) search.oninput=()=>{state.query=search.value;state.page=0;render()};
+  const domain=$("#domainFilter"); if(domain) domain.onchange=()=>{state.domain=domain.value;state.page=0;render()};
+  const clear=$("#clearFilters"); if(clear) clear.onclick=()=>{state.query="";state.domain="all";state.unit="word";state.mode="word";state.page=0;render()};
+  document.querySelectorAll("[data-start]").forEach(b=>b.onclick=()=>{state.selectedItem=b.dataset.start;const item=itemById(state.selectedItem);state.mode=item?.unit||"word";state.unit=state.mode;state.tab="work";render()});
+}
+function renderCorpus(){
+  setTitle("Corpus Atlas","Search, expand, and route the vocabulary universe Sema needs to understand.");
+  const s=stats(), indexed=corpusIndex(), items=state.query||state.domain!=="all"||state.unit!=="all"?filteredCorpus():indexedCorpusPage(state.page*60,60);
+  $("#view").innerHTML=`<div class="split">
+    <section class="task-board">
+      <div class="section-head"><div><h3>World Corpus Index</h3><p>${indexed.count.toLocaleString()} indexed source items across words, phrases, sentences, terms, idioms, proverbs, and recordings. The browser virtualizes the index instead of loading every row into the page.</p></div><span class="badge hot">${s.corpusTotal.toLocaleString()} indexed</span></div>
+      ${corpusTools()}
+      <div class="corpus-grid">${items.slice(0,120).map(item=>corpusCard(item)).join("") || `<div class="empty">No corpus items match these filters.</div>`}</div>
+      <div class="actions"><button class="btn btn-secondary" id="prevPage">Previous index page</button><button class="btn btn-secondary" id="nextPage">Next index page</button><span class="badge">Page ${state.page+1} of ${Math.ceil(s.corpusTotal/60).toLocaleString()}</span></div>
+    </section>
+    <aside class="grid">
+      <section class="card"><h3>Corpus sources</h3><p>Use approved sources to grow the assignment queue with words, phrases, sentences, and domain terms.</p><div class="queue" style="margin-top:12px">${WORLD_SOURCES.map(([t,c])=>`<div class="queue-item"><strong>${t}</strong><span>${c}</span></div>`).join("")}</div></section>
+      <section class="card"><h3>Add one item</h3><p>Nominate a word, phrase, sentence, idiom, proverb, or domain term.</p><label>Unit type</label><select id="newUnit"><option>word</option><option>phrase</option><option>sentence</option><option>term</option><option>idiom</option><option>proverb</option></select><label>English source</label><input id="newText" placeholder="e.g. blood pressure"><label>Domain</label><input id="newDomain" placeholder="e.g. Health"><div class="actions"><button class="btn btn-primary" id="addCorpus">Add to corpus</button></div></section>
+      <section class="card"><h3>Bulk import</h3><p>Paste one item per line. This is how the portal scales to thousands of words.</p><label>Domain for imported items</label><input id="bulkDomain" value="Community vocabulary"><label>Items</label><textarea id="bulkText" placeholder="word one&#10;word two&#10;common phrase"></textarea><div class="actions"><button class="btn btn-primary" id="bulkImport">Import lines</button></div></section>
+      <section class="card"><h3>Corpus shape</h3><div class="queue" style="margin-top:12px"><div class="queue-item"><strong>${s.wordTotal.toLocaleString()} words</strong><span>High-frequency and domain vocabulary.</span></div><div class="queue-item"><strong>${s.phraseTotal.toLocaleString()} phrases</strong><span>Natural short utterances.</span></div><div class="queue-item"><strong>${s.sentenceTotal.toLocaleString()} sentences</strong><span>Context and grammar coverage.</span></div><div class="queue-item"><strong>${s.localCorpus.toLocaleString()} local examples</strong><span>Starter plus user-imported visible rows.</span></div></div></section>
+    </aside>
+  </div>`;
+  bindCorpusTools();bindCommon();
+  $("#prevPage").onclick=()=>{state.page=Math.max(0,state.page-1);render()};
+  $("#nextPage").onclick=()=>{state.page=Math.min(Math.ceil(s.corpusTotal/60)-1,state.page+1);render()};
+  $("#addCorpus").onclick=()=>addCorpusItem($("#newText").value,$("#newUnit").value,$("#newDomain").value);
+  $("#bulkImport").onclick=()=>bulkImport($("#bulkText").value,$("#bulkDomain").value);
+}
+function corpusCard(item){
+  return `<div class="corpus-card"><strong>${esc(item.text)}</strong><span>${esc(item.domain)} - ${esc(item.source)}</span><div class="foot"><span class="badge ${item.priority>2?"hot":""}">${esc(item.unit)}</span><button class="btn btn-secondary" data-start="${item.id}">Translate</button></div></div>`;
+}
+function addCorpusItem(text,unit,domain){
+  const clean=text.trim(); if(!clean) return toast("Add text first");
+  const extra=customCorpus(); extra.push({id:"c"+uid(),unit:unit||"word",text:clean,domain:(domain||"Community vocabulary").trim(),priority:2,source:"Contributor nominated"});
+  saveCustomCorpus(extra);toast("Corpus item added");state.tab="corpus";render();
+}
+function bulkImport(text,domain){
+  const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean); if(!lines.length) return toast("Paste at least one line");
+  const extra=customCorpus(), d=(domain||"Community vocabulary").trim();
+  lines.forEach(line=>extra.push({id:"c"+uid(),unit:line.split(/\s+/).length>4?"sentence":line.split(/\s+/).length>1?"phrase":"word",text:line,domain:d,priority:2,source:"Bulk import"}));
+  saveCustomCorpus(extra);toast(`${lines.length} corpus items imported`);state.tab="corpus";render();
+}
+function renderDashboard(){
+  const s=stats();setTitle("Contributor Dashboard","A mission-control view for language tasks, quality, progress, and dataset health.");
+  const current=LANGS.find(l=>l.code===state.lang)||LANGS[0];
+  $("#view").innerHTML=`<div class="grid">
+    <section class="kpi-strip">
+      <div class="kpi"><div class="label">Quality</div><div class="num">${state.profile.quality}%</div><div class="hint">Contributor score</div></div>
+      <div class="kpi"><div class="label">World corpus</div><div class="num">${s.corpusTotal.toLocaleString()}</div><div class="hint">Indexed text items</div></div>
+      <div class="kpi"><div class="label">Audio seeds</div><div class="num">${audioIndex().count.toLocaleString()}</div><div class="hint">Recording prompts</div></div>
+      <div class="kpi"><div class="label">Languages</div><div class="num">${LANGS.length}</div><div class="hint">Kenya coverage set</div></div>
+      <div class="kpi"><div class="label">Pending QA</div><div class="num">${s.pending}</div><div class="hint">Your queue</div></div>
+      <div class="kpi"><div class="label">Active language</div><div class="num" style="font-size:1.05rem">${current.label}</div><div class="hint">${current.family}</div></div>
+    </section>
+    <div class="home-grid">
+      <section class="task-board">
+        <div class="section-head"><div><h3>Start contributing</h3><p>Choose a focused task. The portal routes work by language, domain, skill, and quality requirements.</p></div><span class="badge good">${state.profile.level}</span></div>
+        ${langPills()}
+        <div class="action-grid">
+          <button class="action-card" id="dashWords"><strong>Translate corpus items</strong><span>Words, phrases, terms, idioms, proverbs, and sentences from the indexed corpus.</span><span class="btn btn-secondary">Open workbench</span></button>
+          <button class="action-card" id="dashAudio"><strong>Record audio samples</strong><span>Scripted and translated prompts with speaker metadata, consent, and QA routing.</span><span class="btn btn-secondary">Open Audio Studio</span></button>
+          <button class="action-card" id="dashReview"><strong>Review submissions</strong><span>Validate translations and recordings with notes, consensus, and escalation.</span><span class="btn btn-secondary">Open review</span></button>
+          <button class="action-card" id="dashCorpus"><strong>Grow the corpus</strong><span>Search, import, nominate, deduplicate, and route new language data.</span><span class="btn btn-secondary">Open corpus</span></button>
+        </div>
+      </section>
+      <aside class="grid">
+        <section class="card"><h3>Contributor platform tools</h3><p>Built into the workflow for serious language and audio collection.</p><div class="tool-list" style="margin-top:12px">${["Consent registry","Dialect metadata","Speaker balancing","Noise checks","Issue reporting","Gold tasks","Consensus review","PII screening","Forced alignment","ASR/TTS evaluation","Audit trail","Approved exports"].map(t=>`<div class="tool-pill">${t}</div>`).join("")}</div></section>
+        <section class="card"><h3>Priority coverage</h3><p>${LANGS.filter(l=>l.need).length} languages and varieties are marked priority.</p><div class="progress"><div class="bar" style="width:${Math.min(100,Math.round(LANGS.filter(l=>l.need).length/LANGS.length*100))}%"></div></div><div class="actions"><button class="btn btn-primary" id="dashPipeline">Open pipeline</button></div></section>
+      </aside>
+    </div>
+    <section class="task-board"><div class="section-head"><div><h3>Available missions</h3><p>All core contributor modes are available from one place.</p></div></div>${missionCards(s)}</section>
+  </div>`;
+  bindCommon();
+  $("#dashWords").onclick=()=>{state.mode="word";state.tab="work";render()};
+  $("#dashAudio").onclick=()=>{state.tab="audio";render()};
+  $("#dashReview").onclick=()=>{state.tab="review";render()};
+  $("#dashCorpus").onclick=()=>{state.tab="corpus";render()};
+  $("#dashPipeline").onclick=()=>{state.tab="pipeline";render()};
+}
+function renderMissions(){
+  const s=stats();setTitle("Mission Marketplace","See what the project needs most and choose the type of contribution you want to make.");
+  $("#view").innerHTML=`<div class="grid"><section class="task-board"><div class="section-head"><div><h3>Open assignments</h3><p>Standard contributor portals separate available work by skill, difficulty, quality rules, and expected output.</p></div><span class="badge hot">${langLabel(state.lang)}</span></div>${langPills()}${missionCards(s)}</section><section class="card"><div class="section-head"><div><h3>Not seeing the word you need?</h3><p>Add it to the Corpus Atlas or bulk import a whole vocabulary list. New items become assignments immediately.</p></div><button class="btn btn-primary" id="missionCorpus">Open Corpus Atlas</button></div></section></div>`;
+  bindCommon();
+  $("#missionCorpus").onclick=()=>{state.tab="corpus";render()};
+}
+function renderWork(){
+  setTitle("Active Workbench","Complete one focused task at a time with guidance, context, and quality checks beside you.");
+  if(state.mode==="record") return renderRecord();
+  if(state.mode==="review") return renderReview();
+  return renderTranslate();
+}
+function renderAudioStudio(){
+  state.mode="record";
+  setTitle("Audio Studio","Record, preview, and submit voice samples from a 2.4M-item audio seed queue.");
+  return renderRecord();
+}
+function renderTranslate(){
+  const all=entries(), lang=all.filter(e=>e.lang===state.lang), done=new Set(lang.filter(e=>e.type==="translation").map(e=>e.itemId));
+  const unit=["word","phrase","sentence","term","idiom","proverb"].includes(state.mode)?state.mode:"word";
+  const queue=corpus().filter(item=>item.unit===unit&&!done.has(item.id)).sort((a,b)=>(b.priority||0)-(a.priority||0));
+  const selected=state.selectedItem?itemById(state.selectedItem):null;
+  const assignment=(selected&&!done.has(selected.id)?selected:null)||nextIndexedAssignment(unit,done);
+  $("#view").innerHTML=`<section class="workbench"><aside class="guide"><h3>${unit[0].toUpperCase()+unit.slice(1)} rules</h3><ol><li>Translate meaning, not word order.</li><li>Use everyday phrasing a real speaker would choose.</li><li>Preserve named entities, numbers, and urgency.</li><li>Add dialect notes when region changes wording.</li></ol><div class="queue" style="margin-top:14px"><div class="queue-item"><strong>${queue.length} ${unit} assignments</strong><span>Automatically routed from the corpus atlas.</span></div><div class="queue-item"><strong>${langLabel(state.lang)}</strong><span>Current target language.</span></div></div></aside><div class="work"><div class="section-head"><div><h3>Translate ${unit}</h3><p>${langLabel(state.lang)} contribution - corpus-routed assignment</p></div><span class="badge hot">${unit}</span></div>${langPills()}${assignment?`<div class="source">${esc(assignment.text)}<small>${esc(assignment.domain)} - ${esc(assignment.source)} - ${assignment.priority>2?"high priority":"standard priority"}</small></div><label>Your ${langLabel(state.lang)} translation</label><textarea id="translation" placeholder="Type the natural translation..."></textarea><label>Dialect, register, or usage note</label><input id="note" placeholder="Optional, e.g. coastal variant, formal speech, youth slang"><label>Confidence</label><select id="confidence"><option>High</option><option>Medium</option><option>Needs review</option></select><div class="actions"><button class="btn btn-primary" id="submitTranslation">Submit translation</button><button class="btn btn-secondary" id="skipSeed">Skip this item</button><button class="btn btn-secondary" id="openCorpusFromWork">Browse corpus</button></div>`:`<div class="empty">All ${unit} assignments are complete for ${langLabel(state.lang)}. Switch unit type, import more corpus items, record audio, or review submissions.</div><div class="actions"><button class="btn btn-primary" id="openCorpusFromWork">Open Corpus Atlas</button></div>`}</div></section>`;
+  bindCommon();
+  const open=$("#openCorpusFromWork"); if(open) open.onclick=()=>{state.tab="corpus";render()};
+  if(assignment){
+    $("#submitTranslation").onclick=()=>{const text=$("#translation").value.trim();if(!text)return toast("Type a translation first");const a=entries();a.push({id:uid(),type:"translation",itemId:assignment.id,unit:assignment.unit,source:assignment.text,domain:assignment.domain,lang:state.lang,text,note:$("#note").value.trim(),confidence:$("#confidence").value,by:state.profile.name,status:"pending",ts:Date.now()});saveEntries(a);state.selectedItem=null;toast("Translation submitted");render()};
+    $("#skipSeed").onclick=()=>{state.selectedItem=null;toast("Skipped");render()};
+  }
+}
+function renderRecord(){
+  const all=entries(), lang=all.filter(e=>e.lang===state.lang), translations=lang.filter(e=>e.type==="translation"&&e.status!=="rejected"), recorded=new Set(lang.filter(e=>e.type==="recording").map(e=>e.refId));
+  const target=translations.find(t=>!recorded.has(t.id));
+  let seedIndex = state.audioPage || 0;
+  const seed = target ? null : virtualAudioSeed(seedIndex);
+  const activeText = target ? target.text : seed.text;
+  const activeId = target ? target.id : seed.id;
+  const activeDomain = target ? target.domain || "Translated text" : seed.domain;
+  $("#view").innerHTML=`<div class="studio-grid">
+    <section class="record-console">
+      <div class="section-head"><div><h3>${target?"Translation recording":"Audio seed recording"}</h3><p>${langLabel(state.lang)} voice contribution from ${target?"approved translation queue":"2.4M indexed audio seed queue"}.</p></div><span class="badge hot">${target?"translation":"seed"} audio</span></div>
+      ${langPills()}
+      <div class="grid metrics">
+        <div class="card metric"><div class="label">Audio seed bank</div><div class="num">${audioIndex().count.toLocaleString()}</div><div class="hint">Indexed recording prompts</div></div>
+        <div class="card metric"><div class="label">Recorded here</div><div class="num">${lang.filter(e=>e.type==="recording").length}</div><div class="hint">${langLabel(state.lang)} samples</div></div>
+        <div class="card metric"><div class="label">Ready translations</div><div class="num">${translations.length}</div><div class="hint">Can be recorded</div></div>
+        <div class="card metric"><div class="label">Domain</div><div class="num" style="font-size:1.2rem">${esc(activeDomain)}</div><div class="hint">Current prompt</div></div>
+      </div>
+      <div class="record-target" id="recordSource"><strong>${esc(activeText)}</strong><span>${target?"Approved translation to read aloud":`Audio seed ${activeId} - ${seed.source}`}</span></div>
+      <div class="audio-meter" aria-label="Audio level preview">${Array.from({length:24}).map((_,i)=>`<i style="height:${8+((i*17)%34)}px"></i>`).join("")}</div>
+      <div class="control-bar"><button class="btn btn-primary" id="recordBtn">Start recording</button><button class="btn btn-secondary" id="nextSeed">Next seed</button><button class="btn btn-secondary" id="resetAudio">Reset</button></div>
+      <div id="audioBox"></div>
+      <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:12px"><div><label>Environment</label><select id="env"><option>Quiet room</option><option>Some background noise</option><option>Noisy environment</option><option>Outdoor field setting</option></select></div><div><label>Device</label><select id="device"><option>Phone microphone</option><option>Headset microphone</option><option>Computer microphone</option><option>Studio microphone</option></select></div><div><label>Prompt mode</label><select id="promptMode"><option>Scripted read-aloud</option><option>Spontaneous response</option><option>Minimal pair</option><option>Pronunciation check</option></select></div></div>
+      <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:12px"><div><label>Dialect / region</label><input id="dialect" placeholder="e.g. Kilifi, Nairobi, North Rift"></div><div><label>Speaker age range</label><select id="speakerAge"><option>18-24</option><option>25-34</option><option>35-44</option><option>45-54</option><option>55+</option></select></div><div><label>Speaker gender</label><select id="speakerGender"><option>Prefer not to say</option><option>Female</option><option>Male</option><option>Other</option></select></div></div>
+      <label><input type="checkbox" id="speakerConsent" checked> I confirm this speaker consented to submit this recording for Sema dataset review.</label>
+      <label>Issue report</label><input id="issueNote" placeholder="Optional: wrong prompt, pronunciation concern, background noise, dialect note">
+      <div class="actions"><button class="btn btn-primary" id="submitAudio" disabled>Submit recording</button><button class="btn btn-secondary" id="noiseCheck">Run noise check</button><button class="btn btn-secondary" id="openPipelineAudio">Audio QA pipeline</button></div>
+    </section>
+    <aside class="grid">
+      <section class="card"><h3>Recording standard</h3><p>Professional audio collection uses queue routing, metadata, review, and quality checks.</p><div class="queue" style="margin-top:12px"><div class="queue-item"><strong>One clean take</strong><span>No music, clipping, long silence, or background speech.</span></div><div class="queue-item"><strong>Metadata required</strong><span>Language, dialect, device, environment, speaker profile, contributor, timestamp, and prompt ID.</span></div><div class="queue-item"><strong>Reviewed before export</strong><span>Audio enters training only after QA approval.</span></div><div class="queue-item"><strong>Coverage balanced</strong><span>Collect multiple speakers per language, region, gender, age range, and device.</span></div></div></section>
+      <section class="card"><h3>Contributor tools</h3><div class="queue" style="margin-top:12px"><div class="queue-item"><strong>Pronunciation guide</strong><span>Shows expected reading style and difficult terms.</span></div><div class="queue-item"><strong>Noise check</strong><span>Pre-submit signal quality screen for bad recordings.</span></div><div class="queue-item"><strong>Issue reporting</strong><span>Flag wrong prompts, dialect mismatch, or unsafe content.</span></div><div class="queue-item"><strong>Calibration tasks</strong><span>Known-answer recordings keep contributors aligned.</span></div></div></section>
+      <section class="card"><h3>Audio seed scale</h3><p>The seed bank is larger than the text corpus because speech needs repeated coverage across speakers, devices, accents, and environments.</p><div class="meter"><span style="width:100%"></span></div><div class="actions"><span class="badge hot">${AUDIO_SEED_TARGET.toLocaleString()} seed prompts</span></div></section>
+    </aside>
+  </div>`;
+  bindCommon();
+  $("#nextSeed").onclick=()=>{state.audioPage=(seedIndex+1)%AUDIO_SEED_TARGET;state.blob=null;render()};
+  $("#resetAudio").onclick=()=>{state.blob=null;$("#audioBox").innerHTML="";$("#submitAudio").disabled=true};
+  $("#noiseCheck").onclick=()=>toast(state.blob?"Noise check passed for review":"Record audio before running noise check");
+  $("#openPipelineAudio").onclick=()=>{state.tab="pipeline";render()};
+  $("#recordBtn").onclick=async()=>{try{if(!state.recorder||state.recorder.state==="inactive"){const stream=await navigator.mediaDevices.getUserMedia({audio:true});state.chunks=[];state.recorder=new MediaRecorder(stream);state.recorder.ondataavailable=e=>state.chunks.push(e.data);state.recorder.onstop=()=>{state.blob=new Blob(state.chunks,{type:"audio/webm"});$("#audioBox").innerHTML=`<audio controls src="${URL.createObjectURL(state.blob)}" style="width:100%;margin-top:12px"></audio>`;$("#submitAudio").disabled=false;stream.getTracks().forEach(t=>t.stop())};state.recorder.start();$("#recordBtn").textContent="Stop recording"}else{state.recorder.stop();$("#recordBtn").textContent="Start recording"}}catch(e){toast("Microphone unavailable")}};
+  $("#submitAudio").onclick=()=>{if(!state.blob)return toast("Record audio first");if(!$("#speakerConsent").checked)return toast("Consent confirmation is required");const reader=new FileReader();reader.onload=()=>{const a=entries();a.push({id:uid(),type:"recording",refId:activeId,itemId:activeId,text:activeText,domain:activeDomain,lang:state.lang,audio:reader.result.split(",")[1],by:state.profile.name,status:"pending",env:$("#env").value,device:$("#device").value,promptMode:$("#promptMode").value,dialect:$("#dialect").value.trim(),speakerAge:$("#speakerAge").value,speakerGender:$("#speakerGender").value,consent:true,issueNote:$("#issueNote").value.trim(),qa:{noise:"passed",clipping:"unchecked",duration:"pending"},ts:Date.now()});saveEntries(a);toast("Recording submitted for QA");state.blob=null;render()};reader.readAsDataURL(state.blob)};
+}
+function renderReview(){
+  const item=entries().find(e=>e.status==="pending"&&e.by!==state.profile.name);
+  $("#view").innerHTML=`<section class="workbench"><aside class="guide"><h3>Review rubric</h3><ol><li>Meaning must be correct.</li><li>Language should sound fluent.</li><li>Audio must be intelligible.</li><li>Reject with a useful note.</li></ol></aside><div class="work"><div class="section-head"><div><h3>Review queue</h3><p>Validate community submissions before training export.</p></div><span class="badge warn">QA</span></div>${item?reviewItem(item):`<div class="empty">No pending submissions from other contributors right now.</div>`}</div></section>`;
+}
+function reviewItem(item){
+  setTimeout(()=>{$("#approve").onclick=()=>decide(item.id,"approved");$("#reject").onclick=()=>decide(item.id,"rejected")});
+  return `<div class="source">${esc(item.type==="translation"?item.source:item.text)}<small>${item.type==="translation"?"Source text":"Recorded text"}</small></div>${item.type==="translation"?`<div class="source">${esc(item.text)}<small>Submitted translation by ${esc(item.by)}</small></div>`:`<audio controls src="data:audio/webm;base64,${item.audio}" style="width:100%;margin-top:12px"></audio>`}<label>Reviewer note</label><input id="reviewNote" placeholder="Optional, required when rejecting"><div class="actions"><button class="btn btn-primary" id="approve">Approve</button><button class="btn btn-danger" id="reject">Reject</button></div>`;
+}
+function decide(id,status){const a=entries();const item=a.find(e=>e.id===id);item.status=status;item.reviewNote=$("#reviewNote").value.trim();item.reviewedBy=state.profile.name;item.reviewedAt=Date.now();saveEntries(a);toast(status==="approved"?"Approved":"Rejected");render()}
+function renderPipeline(){
+  const s=stats(), all=entries(), approved=all.filter(e=>e.status==="approved"), pending=all.filter(e=>e.status==="pending"), rejected=all.filter(e=>e.status==="rejected");
+  setTitle("Production Pipeline","Million-scale corpus ingestion, verification, review consensus, QA sampling, and training export readiness.");
+  $("#view").innerHTML=`<div class="grid">
+    <section class="task-board">
+      <div class="section-head"><div><h3>Scale target</h3><p>The UI is now designed around a living corpus that can pass one million source items through import, routing, verification, recording, and export.</p></div><span class="badge hot">${SCALE_TARGET.toLocaleString()}+ target</span></div>
+      <div class="grid metrics">
+        <div class="card metric"><div class="label">Indexed corpus</div><div class="num">${s.corpusTotal.toLocaleString()}</div><div class="hint">Source items</div></div>
+        <div class="card metric"><div class="label">Target progress</div><div class="num">${s.scaleProgress}%</div><div class="hint">Toward 1.2M source items</div></div>
+        <div class="card metric"><div class="label">Approved</div><div class="num">${approved.length}</div><div class="hint">Export eligible</div></div>
+        <div class="card metric"><div class="label">Pending QA</div><div class="num">${pending.length}</div><div class="hint">Needs review</div></div>
+      </div>
+      <div class="meter"><span style="width:${Math.min(100,s.scaleProgress)}%"></span></div>
+    </section>
+    <section class="task-board">
+      <div class="section-head"><div><h3>Production tools</h3><p>These are the operating tools a serious contribution portal needs before model-training export.</p></div><button class="btn btn-primary" id="runHealth">Run readiness check</button></div>
+      <div class="tool-grid">${PRODUCTION_TOOLS.map(([title,copy,status])=>`<div class="tool-card"><h4>${title}</h4><p>${copy}</p><div class="state"><span class="badge good">${status}</span><button class="btn btn-secondary" data-tool="${title}">Open</button></div></div>`).join("")}</div>
+    </section>
+    <div class="split">
+      <section class="card">
+        <div class="section-head"><div><h3>Verification mechanism</h3><p>Approval is not a single click. Production mode needs consensus, calibration, and auditability.</p></div><span class="badge warn">Consensus QA</span></div>
+        <div class="verify-grid">${VERIFY_RULES.map(([title,copy])=>`<div class="verify-rule"><strong>${title}</strong><span>${copy}</span></div>`).join("")}</div>
+      </section>
+      <aside class="grid">
+        <section class="card"><h3>Bulk corpus operations</h3><p>Use Corpus Atlas for paste imports today. In production this maps to file upload, cloud storage, queue processing, search indexing, and backend validation.</p><div class="actions"><button class="btn btn-primary" id="openCorpusOps">Open Corpus Atlas</button><button class="btn btn-secondary" id="exportCorpus">Export corpus JSON</button></div></section>
+        <section class="card"><h3>Dataset status</h3><div class="queue" style="margin-top:12px"><div class="queue-item"><strong>${approved.length} approved</strong><span>Can be exported for training after final sampling.</span></div><div class="queue-item"><strong>${pending.length} pending</strong><span>Needs contributor-independent validation.</span></div><div class="queue-item"><strong>${rejected.length} rejected</strong><span>Kept for audit and contributor feedback.</span></div></div></section>
+      </aside>
+    </div>
+    <section class="card">
+      <div class="section-head"><div><h3>Export contract</h3><p>Stable structure for model-training pipelines and downstream audit.</p></div><button class="btn btn-secondary" id="exportApprovedPipeline">Export approved data</button></div>
+      <pre class="schema">{
+  "id": "stable_entry_id",
+  "source_item_id": "corpus_item_id",
+  "unit": "word | phrase | sentence | term | idiom | proverb | recording",
+  "domain": "Health | Legal | Daily life | ...",
+  "source_text": "English source",
+  "target_language": "giri",
+  "target_text": "approved translation",
+  "audio_base64": "optional recording payload",
+  "status": "approved",
+  "consensus": { "required": 2, "approved": 2, "disagreed": 0 },
+  "audit": { "contributor": "...", "reviewers": [], "timestamps": [] }
+}</pre>
+    </section>
+  </div>`;
+  $("#runHealth").onclick=()=>toast(readinessMessage(s,pending));
+  $("#openCorpusOps").onclick=()=>{state.tab="corpus";render()};
+  $("#exportCorpus").onclick=()=>download(corpus(),"sema_corpus_inventory.json");
+  $("#exportApprovedPipeline").onclick=()=>download(approved,"sema_approved_training_export.json");
+  document.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>toast(`${b.dataset.tool} queue opened`));
+}
+function readinessMessage(s,pending){
+  if(s.corpusTotal<10000)return "Readiness: import a much larger corpus first";
+  if(pending.length)return "Readiness: resolve pending review queue";
+  if(s.coverage<80)return "Readiness: improve language coverage before export";
+  return "Readiness: export can proceed after final sampling";
+}
+function renderSystems(){
+  const s=stats(), all=entries(), pending=all.filter(e=>e.status==="pending"), approved=all.filter(e=>e.status==="approved");
+  setTitle("Operations","Track work that needs review, repair, language-lead action, or release approval.");
+  $("#view").innerHTML=`<div class="grid">
+    <section class="kpi-strip">
+      <div class="kpi"><div class="label">Corpus queue</div><div class="num">${s.corpusTotal.toLocaleString()}</div><div class="hint">Available assignments</div></div>
+      <div class="kpi"><div class="label">Audio queue</div><div class="num">${audioIndex().count.toLocaleString()}</div><div class="hint">Recording prompts</div></div>
+      <div class="kpi"><div class="label">Pending review</div><div class="num">${pending.length}</div><div class="hint">Needs validation</div></div>
+      <div class="kpi"><div class="label">Approved</div><div class="num">${approved.length}</div><div class="hint">Release eligible</div></div>
+      <div class="kpi"><div class="label">Languages</div><div class="num">${LANGS.length}</div><div class="hint">Tracked queues</div></div>
+      <div class="kpi"><div class="label">Coverage</div><div class="num">${s.coverage}%</div><div class="hint">Contributor activity</div></div>
+    </section>
+    <section class="task-board"><div class="section-head"><div><h3>Operations queue</h3><p>Use this page to decide what contributors, reviewers, and language leads should work on next.</p></div><button class="btn btn-primary" id="opsExport">Export operations snapshot</button></div><div class="ops-grid">${OPERATIONS_CARDS.map(([t,c,s])=>`<div class="ops-card"><h4>${t}</h4><p>${c}</p><div class="state"><span class="badge good">${s}</span><button class="btn btn-secondary" data-ops="${t}">Open</button></div></div>`).join("")}</div></section>
+    <section class="task-board"><div class="section-head"><div><h3>Contributor permissions</h3><p>Each person sees work that matches their language skills, quality history, and review responsibility.</p></div></div><div class="role-grid">${ROLES.map(([r,c])=>`<div class="role-card"><strong>${r}</strong><span>${c}</span></div>`).join("")}</div></section>
+    <section class="card"><div class="section-head"><div><h3>Release checklist</h3><p>Before a language dataset is released, the team checks quality, coverage, consent, speaker balance, and unresolved disputes.</p></div><button class="btn btn-secondary" id="releaseSnapshot">Export release checklist</button></div><div class="verify-grid">${VERIFY_RULES.slice(0,8).map(([title,copy])=>`<div class="verify-rule"><strong>${title}</strong><span>${copy}</span></div>`).join("")}</div></section>
+  </div>`;
+  $("#opsExport").onclick=()=>download({pending,approved,coverage:s.coverage,languages:LANGS.length},"sema_operations_snapshot.json");
+  $("#releaseSnapshot").onclick=()=>download({checks:VERIFY_RULES,approved:approved.length,pending:pending.length},"sema_release_checklist.json");
+  document.querySelectorAll("[data-ops]").forEach(b=>b.onclick=()=>toast(`${b.dataset.ops} queue opened`));
+}
+function renderRewards(){
+  const s=stats(), approved=s.approved, next=approved<50?50:approved<250?250:approved<1000?1000:approved+500;
+  setTitle("Rewards","Contributor incentives, trust levels, badges, payout review, and community recognition.");
+  $("#view").innerHTML=`<div class="grid">
+    <section class="kpi-strip">
+      <div class="kpi"><div class="label">Approved work</div><div class="num">${approved}</div><div class="hint">Eligible points</div></div>
+      <div class="kpi"><div class="label">Pending review</div><div class="num">${s.pending}</div><div class="hint">Not rewarded yet</div></div>
+      <div class="kpi"><div class="label">Next tier</div><div class="num">${next}</div><div class="hint">Approved items target</div></div>
+      <div class="kpi"><div class="label">Trust score</div><div class="num">${state.profile.quality}%</div><div class="hint">Quality weighted</div></div>
+      <div class="kpi"><div class="label">Badges</div><div class="num">4</div><div class="hint">Tier system</div></div>
+      <div class="kpi"><div class="label">Payout</div><div class="num" style="font-size:1.1rem">Review</div><div class="hint">Admin approval</div></div>
+    </section>
+    <div class="home-grid"><section class="task-board"><div class="section-head"><div><h3>Reward tiers</h3><p>Rewards should be tied to approved quality, not raw submissions.</p></div></div><div class="ops-grid">${REWARD_TIERS.map(([t,n,c])=>`<div class="ops-card"><h4>${t}</h4><p>${n}</p><span class="badge">${c}</span></div>`).join("")}</div></section>
+    <aside class="grid"><section class="card"><h3>What counts</h3><div class="queue" style="margin-top:12px"><div class="queue-item"><strong>Approved translations</strong><span>Quality-reviewed text only.</span></div><div class="queue-item"><strong>Approved recordings</strong><span>Audio must pass technical and reviewer QA.</span></div><div class="queue-item"><strong>Review accuracy</strong><span>Reviewer rewards depend on gold-task agreement.</span></div><div class="queue-item"><strong>Language leadership</strong><span>Lead work includes dispute resolution and guideline maintenance.</span></div></div></section></aside></div>
+    <section class="card"><h3>Anti-gaming controls</h3><p>Production rewards need duplicate detection, minimum duration checks, reviewer calibration, velocity limits, device fingerprints, and audit logs before payout.</p></section>
+  </div>`;
+}
+function renderLeads(){
+  const all=entries();
+  setTitle("Language Leads","Community lead dashboards for coverage, disputes, reviewer calibration, and release readiness.");
+  const rows=LANGS.slice(0,24).map(l=>({label:l.label,family:l.family,priority:l.need,total:all.filter(e=>e.lang===l.code).length,pending:all.filter(e=>e.lang===l.code&&e.status==="pending").length}));
+  $("#view").innerHTML=`<div class="grid">
+    <section class="task-board"><div class="section-head"><div><h3>Lead workbench</h3><p>Language leads need language-by-language visibility, not just global admin tables.</p></div><span class="badge hot">${LANGS.length} languages</span></div><div class="table-wrap"><table><tr><th>Language</th><th>Family</th><th>Priority</th><th>Total</th><th>Pending</th><th>Lead action</th></tr>${rows.map(r=>`<tr><td>${r.label}</td><td>${r.family}</td><td>${r.priority?"Priority":"Seeded"}</td><td>${r.total}</td><td>${r.pending}</td><td><button class="btn btn-secondary" data-lead="${r.label}">Open</button></td></tr>`).join("")}</table></div></section>
+    <div class="ops-grid"><div class="ops-card"><h4>Guidelines</h4><p>Maintain dialect notes, spelling conventions, forbidden content, and domain examples per language.</p><span class="badge good">Ready</span></div><div class="ops-card"><h4>Disputes</h4><p>Resolve conflicting reviewer decisions and promote final canonical entries.</p><span class="badge warn">Queue</span></div><div class="ops-card"><h4>Calibration</h4><p>Assign gold tasks and watch reviewer accuracy by language and domain.</p><span class="badge good">Active</span></div><div class="ops-card"><h4>Release readiness</h4><p>Check coverage, consent, audio QA, speaker diversity, and export eligibility.</p><span class="badge hot">Required</span></div></div>
+  </div>`;
+  document.querySelectorAll("[data-lead]").forEach(b=>b.onclick=()=>toast(`${b.dataset.lead} lead queue opened`));
+}
+function renderLedger(){
+  const s=stats();setTitle("Contributor Ledger","Track your work, approval status, profile, and progress over time.");
+  $("#view").innerHTML=`<div class="grid dash"><div class="grid">${metrics(s)}<section class="card"><div class="section-head"><div><h3>Your submissions</h3><p>Every task you have completed in this browser.</p></div></div>${s.mine.length?`<div class="table-wrap"><table><tr><th>Type</th><th>Language</th><th>Status</th><th>Text</th></tr>${s.mine.slice().reverse().map(e=>`<tr><td>${e.type}</td><td>${langLabel(e.lang)}</td><td><span class="badge ${e.status==="approved"?"good":e.status==="pending"?"warn":""}">${e.status}</span></td><td>${esc(e.text||e.source||"Audio recording")}</td></tr>`).join("")}</table></div>`:`<div class="empty">No submissions yet.</div>`}</section></div><aside class="grid"><section class="card"><h3>Contributor profile</h3><div class="queue" style="margin-top:12px"><div class="queue-item"><strong>${esc(state.profile.name)}</strong><span>${esc(state.profile.level)}</span></div><div class="queue-item"><strong>${esc(state.profile.county)}</strong><span>County / region</span></div><div class="queue-item"><strong>${state.profile.languages.map(langLabel).join(", ")}</strong><span>Declared languages</span></div></div></section></aside></div>`;
+}
+function renderAdmin(){
+  const all=entries(), items=corpus();setTitle("Dataset Admin","Operations view for corpus scale, coverage, review status, and exports.");
+  const byLang=LANGS.map(l=>({label:l.label,total:all.filter(e=>e.lang===l.code).length,approved:all.filter(e=>e.lang===l.code&&e.status==="approved").length,pending:all.filter(e=>e.lang===l.code&&e.status==="pending").length}));
+  const byUnit=["word","phrase","sentence","term","idiom","proverb"].map(u=>({unit:u,count:items.filter(i=>i.unit===u).length}));
+  $("#view").innerHTML=`<div class="grid dash"><div class="grid"><section class="card"><div class="section-head"><div><h3>Language coverage</h3><p>Operational table for the Sema team.</p></div><button class="btn btn-primary" id="export">Export approved JSON</button></div><div class="table-wrap"><table><tr><th>Language</th><th>Total</th><th>Approved</th><th>Pending</th></tr>${byLang.map(r=>`<tr><td>${r.label}</td><td>${r.total}</td><td>${r.approved}</td><td>${r.pending}</td></tr>`).join("")}</table></div></section><section class="card"><div class="section-head"><div><h3>Corpus inventory</h3><p>The portal is designed to grow from a starter list into thousands, then millions, of words and expressions.</p></div><button class="btn btn-secondary" id="adminCorpus">Manage corpus</button></div><div class="table-wrap"><table><tr><th>Unit</th><th>Items</th></tr>${byUnit.map(r=>`<tr><td>${r.unit}</td><td>${r.count}</td></tr>`).join("")}</table></div></section></div><aside class="grid"><section class="card"><h3>Admin checklist</h3><div class="queue" style="margin-top:12px"><div class="queue-item"><strong>Review pending first</strong><span>Only approved entries should be exported.</span></div><div class="queue-item"><strong>Grow the corpus</strong><span>Import word lists by domain: health, law, farming, school, transport.</span></div><div class="queue-item"><strong>Run pipeline checks</strong><span>Use production readiness before export.</span></div><div class="queue-item"><strong>Balance languages</strong><span>Prioritize low-resource queues and missing domains.</span></div></div><div class="actions"><button class="btn btn-primary" id="adminPipeline">Open Pipeline</button></div></section></aside></div>`;
+  $("#export").onclick=()=>download(all.filter(e=>e.status==="approved"),"sema_approved_dataset.json");
+  $("#adminCorpus").onclick=()=>{state.tab="corpus";render()};
+  $("#adminPipeline").onclick=()=>{state.tab="pipeline";render()};
+}
+function download(data,name){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
+function bindCommon(){
+  document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;render()});
+  const langSelect=$("#langSelect"); if(langSelect) langSelect.onchange=()=>{state.lang=langSelect.value;render()};
+  document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;if(["word","phrase","sentence","term","idiom","proverb"].includes(state.mode))state.unit=state.mode;state.selectedItem=null;state.tab="work";render()});
+}
+function showProfile(){
+  $("#profileCard").innerHTML=`<h3 style="margin:0">Contributor profile</h3><p style="color:var(--muted)">Update the basics used for attribution and routing.</p><label>Name</label><input id="pName" value="${esc(state.profile.name)}"><label>County / region</label><input id="pCounty" value="${esc(state.profile.county)}"><label>Primary languages, comma separated</label><input id="pLangs" value="${state.profile.languages.map(langLabel).join(", ")}"><div class="actions"><button class="btn btn-primary" id="saveProfile">Save profile</button><button class="btn btn-secondary" id="closeProfile">Close</button></div>`;
+  $("#profileModal").classList.add("show");
+  $("#closeProfile").onclick=()=>$("#profileModal").classList.remove("show");
+  $("#saveProfile").onclick=()=>{state.profile.name=$("#pName").value.trim()||"Contributor";state.profile.county=$("#pCounty").value.trim()||"Not set";saveProfile(state.profile);$("#profileModal").classList.remove("show");toast("Profile saved");render()};
+}
+function render(){
+  ensureProfile();renderNav();
+  const views={dashboard:renderDashboard,corpus:renderCorpus,missions:renderMissions,work:renderWork,audio:renderAudioStudio,review:()=>{state.mode="review";renderWork()},systems:renderSystems,pipeline:renderPipeline,rewards:renderRewards,leads:renderLeads,ledger:renderLedger,admin:renderAdmin};
+  (views[state.tab]||renderDashboard)();
+}
+$("#profileBtn").onclick=showProfile;
+$("#profileModal").onclick=e=>{if(e.target.id==="profileModal")$("#profileModal").classList.remove("show")};
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sema — Live AI Interpreter for Every Kenyan Language</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1B2340;
+  --navy-deep: #12172B;
+  --navy-mid: #222D50;
+  --ochre: #D98E29;
+  --ochre-light: #F3C878;
+  --ochre-wash: #FBF0DC;
+  --teal: #11665C;
+  --teal-light: #4FA396;
+  --teal-wash: #E3F0EE;
+  --paper: #FAFAF8;
+  --ink: #1A1D2B;
+  --muted: #697080;
+  --line: #E5E3DD;
+  --avatar-glow: rgba(79,163,150,0.4);
+  --speaking-color: #4FA396;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1,h2,h3,h4 { font-family: 'Fraunces', serif; letter-spacing: -0.02em; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500; }
+.wrap { max-width: 1140px; margin: 0 auto; padding: 0 36px; }
+@media (max-width: 720px) { .wrap { padding: 0 20px; } }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(250,250,248,0.9); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+nav .inner { max-width: 1140px; margin: 0 auto; padding: 0 36px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+.brand { display: flex; align-items: center; gap: 9px; font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.2rem; text-decoration: none; color: var(--ink); }
+.brand-mark { width: 28px; height: 28px; background: linear-gradient(135deg, var(--teal), var(--teal-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.brand-mark svg { width: 16px; height: 16px; }
+nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 26px; }
+nav ul a { font-size: 0.85rem; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+nav ul a:hover { color: var(--ink); }
+@media (max-width: 760px) { nav ul { display: none; } }
+
+/* HERO */
+.hero {
+  background: radial-gradient(ellipse 140% 80% at 80% -20%, #263278 0%, var(--navy) 50%, #0D1220 100%);
+  color: #fff; padding: 80px 0 0; overflow: hidden; position: relative;
+}
+.hero::after { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+.hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 2; padding-bottom: 64px; }
+@media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; padding-bottom: 40px; } }
+.hero .eyebrow { color: var(--ochre-light); margin-bottom: 16px; }
+.hero h1 { font-size: clamp(2.4rem, 4.5vw, 3.8rem); line-height: 1.03; margin: 0 0 18px; font-weight: 700; }
+.hero h1 em { font-style: italic; font-weight: 300; color: var(--ochre-light); }
+.hero p.lead { font-size: 1.06rem; line-height: 1.65; color: #B8BECD; max-width: 500px; margin: 0 0 32px; }
+.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none; border: 1.5px solid transparent; cursor: pointer; transition: all 0.18s; font-family: 'Inter', sans-serif; }
+.btn-primary { background: var(--ochre); color: #12172B; }
+.btn-primary:hover { background: var(--ochre-light); transform: translateY(-1px); }
+.btn-ghost { border-color: rgba(255,255,255,0.25); color: #fff; background: transparent; }
+.btn-ghost:hover { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.06); }
+.btn-teal { background: var(--teal); color: #fff; }
+.btn-teal:hover { background: var(--teal-light); }
+
+/* HERO AVATAR STAGE */
+.hero-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 400px; }
+.orbit-rings { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.orbit-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(79,163,150,0.2); }
+.orbit-ring:nth-child(1) { width: 340px; height: 340px; animation: orbitPulse 3s ease-in-out infinite; }
+.orbit-ring:nth-child(2) { width: 250px; height: 250px; animation: orbitPulse 3s ease-in-out infinite 0.5s; }
+.orbit-ring:nth-child(3) { width: 165px; height: 165px; animation: orbitPulse 3s ease-in-out infinite 1s; }
+@keyframes orbitPulse { 0%,100%{opacity:0.6;transform:scale(1);} 50%{opacity:0.2;transform:scale(1.04);} }
+
+.sema-avatar {
+  position: relative; z-index: 5; width: 110px; height: 110px;
+  background: linear-gradient(145deg, #2A7A6E, var(--teal-light));
+  border-radius: 50%;
+  box-shadow: 0 0 60px rgba(79,163,150,0.5), 0 0 120px rgba(79,163,150,0.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.sema-avatar.speaking { animation: avatarSpeak 0.15s ease-in-out infinite alternate; }
+@keyframes avatarSpeak { 0%{transform:scale(1);box-shadow:0 0 60px rgba(79,163,150,0.5);} 100%{transform:scale(1.04);box-shadow:0 0 80px rgba(79,163,150,0.8),0 0 140px rgba(79,163,150,0.3);} }
+
+/* SVG Avatar Face */
+.avatar-svg { width: 72px; height: 72px; }
+.eye { transition: transform 0.1s; transform-origin: center; }
+.mouth-path { transition: d 0.1s; }
+
+
+/* Floating language tags */
+.lang-tags { position: absolute; inset: 0; pointer-events: none; }
+.lang-tag {
+  position: absolute; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600;
+  font-family: 'JetBrains Mono', monospace; white-space: nowrap;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.75); backdrop-filter: blur(8px);
+  animation: floatLang 4s ease-in-out infinite;
+}
+.lang-tag:nth-child(1) { top: 8%; left: 10%; animation-delay: 0s; }
+.lang-tag:nth-child(2) { top: 12%; right: 8%; animation-delay: 0.7s; }
+.lang-tag:nth-child(3) { top: 50%; left: 3%; animation-delay: 1.4s; }
+.lang-tag:nth-child(4) { top: 50%; right: 3%; animation-delay: 2.1s; }
+.lang-tag:nth-child(5) { bottom: 15%; left: 12%; animation-delay: 2.8s; }
+.lang-tag:nth-child(6) { bottom: 10%; right: 10%; animation-delay: 1.8s; }
+.lang-tag.active-lang { background: rgba(217,142,41,0.2); border-color: rgba(243,200,120,0.5); color: var(--ochre-light); }
+@keyframes floatLang { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+
+/* WAVEFORM BARS */
+.hero-wave { display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: 40px; margin-top: 20px; }
+.hero-wave .wbar { width: 5px; border-radius: 3px; background: var(--teal-light); opacity: 0.6; animation: waveBounce 1.2s ease-in-out infinite; }
+.hero-wave .wbar:nth-child(1) { height:12px; animation-delay:0s; }
+.hero-wave .wbar:nth-child(2) { height:24px; animation-delay:0.1s; }
+.hero-wave .wbar:nth-child(3) { height:36px; animation-delay:0.2s; }
+.hero-wave .wbar:nth-child(4) { height:28px; animation-delay:0.3s; }
+.hero-wave .wbar:nth-child(5) { height:18px; animation-delay:0.4s; }
+.hero-wave .wbar:nth-child(6) { height:32px; animation-delay:0.5s; }
+.hero-wave .wbar:nth-child(7) { height:24px; animation-delay:0.4s; }
+.hero-wave .wbar:nth-child(8) { height:14px; animation-delay:0.3s; }
+.hero-wave .wbar:nth-child(9) { height:28px; animation-delay:0.2s; }
+@keyframes waveBounce { 0%,100%{transform:scaleY(1);opacity:0.5;} 50%{transform:scaleY(1.5);opacity:1;} }
+
+/* stat strip */
+.stat-strip { background: rgba(255,255,255,0.04); border-top: 1px solid rgba(255,255,255,0.08); }
+.stat-strip .wrap { display: flex; align-items: stretch; }
+.stat-item { flex: 1; padding: 20px 0; text-align: center; border-right: 1px solid rgba(255,255,255,0.08); }
+.stat-item:last-child { border-right: none; }
+.stat-num { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 700; color: var(--ochre-light); display: block; }
+.stat-lab { font-size: 0.76rem; color: rgba(255,255,255,0.45); margin-top: 2px; display: block; }
+@media (max-width:640px) { .stat-strip .wrap{flex-wrap:wrap;} .stat-item{flex:1 0 50%;} }
+
+/* SECTION BASE */
+section { padding: 96px 0; }
+.sec-head { max-width: 620px; margin: 0 0 52px; }
+.sec-head .eyebrow { color: var(--ochre); margin-bottom: 10px; display: block; }
+.sec-head h2 { font-size: clamp(1.8rem, 3vw, 2.5rem); margin: 0 0 14px; font-weight: 600; }
+.sec-head p { color: var(--muted); font-size: 1rem; line-height: 1.65; margin: 0; }
+
+/* INTERPRETER STAGE */
+#interpreter { background: var(--navy); color: #fff; padding: 96px 0; }
+#interpreter .sec-head h2 { color: #fff; }
+#interpreter .sec-head p { color: #9AA2BC; }
+#interpreter .sec-head .eyebrow { color: var(--ochre-light); }
+
+.interp-stage {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; overflow: hidden;
+}
+
+.interp-top { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; align-items: stretch; }
+@media (max-width:860px) { .interp-top { grid-template-columns: 1fr; } }
+
+.interp-person {
+  padding: 32px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.interp-person.person-a { border-right: 1px solid rgba(255,255,255,0.08); }
+.interp-person.person-b { border-left: 1px solid rgba(255,255,255,0.08); }
+@media (max-width:860px) { .interp-person.person-a, .interp-person.person-b { border: none; border-bottom: 1px solid rgba(255,255,255,0.08); } }
+
+.person-header { display: flex; align-items: center; gap: 10px; }
+.person-badge { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+.badge-a { background: var(--ochre); color: var(--navy-deep); }
+.badge-b { background: var(--teal-light); color: var(--navy-deep); }
+.person-header label { font-size: 0.72rem; color: #8890AA; font-family: 'JetBrains Mono', monospace; display: block; margin-bottom: 4px; }
+.person-header select { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 7px; padding: 8px 10px; font-size: 0.87rem; width: 100%; }
+.person-header select option { color: #1A1D2B; }
+
+.person-speech-area {
+  flex: 1; min-height: 100px; background: rgba(255,255,255,0.04);
+  border-radius: 12px; padding: 14px; position: relative; overflow: hidden;
+}
+.speech-original { font-size: 0.95rem; line-height: 1.5; color: #E8EAEE; min-height: 28px; }
+.speech-translated { font-size: 0.83rem; line-height: 1.5; color: var(--teal-light); margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); font-style: italic; min-height: 28px; }
+.speech-lang-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.5; display: block; margin-bottom: 4px; }
+.speaking-indicator { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--teal-light); opacity: 0; }
+.speaking-indicator.active { opacity: 1; animation: pulse-dot 0.8s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.4);opacity:0.5;} }
+
+/* CENTER AVATAR */
+.interp-center {
+  padding: 24px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  min-width: 140px;
+}
+.center-avatar-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.center-avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(145deg, var(--teal), var(--teal-light));
+  box-shadow: 0 0 40px rgba(79,163,150,0.4);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; z-index: 2; transition: box-shadow 0.3s;
+}
+.center-avatar.active { box-shadow: 0 0 60px rgba(79,163,150,0.7), 0 0 100px rgba(79,163,150,0.3); animation: centerPulse 0.2s ease-in-out infinite alternate; }
+@keyframes centerPulse { 0%{transform:scale(1);} 100%{transform:scale(1.05);} }
+.center-rings { position: absolute; inset: -20px; }
+.center-ring { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(79,163,150,0.3); animation: centerRingPulse 2s ease-in-out infinite; }
+.center-ring:nth-child(2) { inset: -12px; animation-delay: 0.4s; opacity: 0.4; }
+.center-ring:nth-child(3) { inset: -24px; animation-delay: 0.8s; opacity: 0.2; }
+@keyframes centerRingPulse { 0%,100%{transform:scale(1);opacity:0.3;} 50%{transform:scale(1.1);opacity:0;} }
+
+.flow-arrows { display: flex; flex-direction: column; align-items: center; gap: 4px; color: rgba(255,255,255,0.2); font-size: 1.1rem; }
+.flow-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: #5A6280; text-align: center; }
+
+/* INTERP CONTROLS */
+.interp-controls { padding: 20px 32px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.phrase-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+.phrase-chip {
+  padding: 7px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+  color: #B5BAC9; transition: all 0.15s; font-family: 'Inter', sans-serif;
+}
+.phrase-chip:hover { background: rgba(217,142,41,0.12); border-color: var(--ochre); color: var(--ochre-light); }
+.phrase-chip.active { background: rgba(217,142,41,0.2); border-color: var(--ochre); color: var(--ochre-light); }
+.interp-btn-group { display: flex; gap: 8px; }
+
+/* TRANSCRIPT PANEL */
+.interp-transcript {
+  padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.2); max-height: 280px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.transcript-empty { text-align: center; color: #4A5070; font-size: 0.88rem; padding: 20px 0; }
+.t-turn { display: flex; gap: 10px; }
+.t-turn.turn-b { flex-direction: row-reverse; }
+.t-av { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; }
+.t-av.av-a { background: var(--ochre); color: var(--navy-deep); }
+.t-av.av-b { background: var(--teal-light); color: var(--navy-deep); }
+.t-bubbles { display: flex; flex-direction: column; gap: 4px; max-width: 75%; }
+.t-orig { padding: 8px 12px; border-radius: 10px; font-size: 0.87rem; line-height: 1.4; }
+.turn-a .t-orig { background: rgba(217,142,41,0.14); color: #F0DCB4; border-bottom-left-radius: 3px; }
+.turn-b .t-orig { background: rgba(79,163,150,0.16); color: #C8EDE8; border-bottom-right-radius: 3px; }
+.t-trans { font-size: 0.78rem; font-style: italic; color: #7880A0; padding: 4px 12px; }
+.t-lang { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.5; display: block; margin-bottom: 2px; }
+.turn-b .t-bubbles { align-items: flex-end; }
+
+/* SIGN LANGUAGE SECTION */
+#signlang { background: #fff; border-top: 1px solid var(--line); }
+.sign-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+@media (max-width:860px) { .sign-grid { grid-template-columns: 1fr; } }
+.sign-demo-area {
+  background: var(--navy); border-radius: 20px; padding: 40px; display: flex; flex-direction: column; align-items: center; gap: 24px;
+  position: relative; overflow: hidden; min-height: 360px; justify-content: center;
+}
+.sign-demo-area::before { content: 'PHASE 4'; position: absolute; top: 16px; right: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; color: var(--ochre-light); background: rgba(217,142,41,0.15); border: 1px solid rgba(217,142,41,0.3); padding: 4px 10px; border-radius: 20px; }
+
+/* Hand SVG animation */
+.sign-hand-container { display: flex; gap: 32px; align-items: flex-end; }
+.hand-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.hand-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; }
+.hand-svg { width: 90px; height: 110px; }
+.sign-word-display { font-family: 'Fraunces', serif; font-size: 1.5rem; color: #fff; text-align: center; min-height: 40px; }
+.sign-translation { font-size: 0.82rem; color: rgba(255,255,255,0.4); text-align: center; }
+.sign-word-display span { display: inline-block; animation: signFade 0.4s ease; }
+@keyframes signFade { 0%{opacity:0;transform:translateY(8px);} 100%{opacity:1;transform:none;} }
+
+.sign-features { display: flex; flex-direction: column; gap: 20px; }
+.sign-feat { display: flex; gap: 14px; align-items: flex-start; }
+.sign-feat-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sign-feat-icon.ic-teal { background: var(--teal-wash); }
+.sign-feat-icon.ic-ochre { background: var(--ochre-wash); }
+.sign-feat h4 { margin: 0 0 4px; font-size: 1rem; font-family: 'Inter', sans-serif; font-weight: 700; }
+.sign-feat p { margin: 0; font-size: 0.88rem; color: var(--muted); line-height: 1.55; }
+.coming-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; background: var(--ochre-wash); color: var(--ochre); border: 1px solid rgba(217,142,41,0.3); margin-top: 8px; }
+
+/* LIVE MIC DEMO */
+#mic-demo { background: var(--paper); padding: 96px 0; }
+.mic-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: center; }
+@media (max-width:860px) { .mic-grid { grid-template-columns: 1fr; } }
+.phone-mockup {
+  margin: 0 auto; width: 260px; border-radius: 36px; background: var(--navy-deep);
+  padding: 12px; box-shadow: 0 30px 70px -20px rgba(27,35,64,0.4), 0 0 0 1px rgba(255,255,255,0.06);
+  position: relative;
+}
+.phone-screen { background: var(--paper); border-radius: 24px; overflow: hidden; }
+.phone-bar { background: var(--navy); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+.phone-app-name { font-family: 'Fraunces', serif; font-size: 0.9rem; color: #fff; font-weight: 600; }
+.phone-status { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--teal-light); }
+.phone-lang-pair { padding: 10px 16px; background: rgba(27,35,64,0.04); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+.plp-from, .plp-to { font-size: 0.8rem; font-weight: 600; }
+.plp-arrow { color: var(--muted); font-size: 0.9rem; }
+.phone-content { padding: 16px; min-height: 280px; display: flex; flex-direction: column; gap: 10px; }
+.p-bubble { border-radius: 12px; padding: 10px 12px; font-size: 0.85rem; line-height: 1.4; }
+.p-bubble.p-src { background: var(--ochre-wash); color: #4A3410; }
+.p-bubble.p-tgt { background: var(--teal-wash); color: #0E3F38; }
+.p-bubble .p-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.6; display: block; margin-bottom: 4px; }
+.phone-mic-area { padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; border-top: 1px solid var(--line); }
+.mic-btn {
+  width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(145deg, var(--teal), var(--teal-light));
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 24px rgba(17,102,92,0.4); transition: all 0.2s;
+}
+.mic-btn:hover { transform: scale(1.08); box-shadow: 0 12px 30px rgba(17,102,92,0.5); }
+.mic-btn.recording { animation: micPulse 0.8s ease-in-out infinite; background: linear-gradient(145deg, #C0392B, #E74C3C); }
+@keyframes micPulse { 0%,100%{box-shadow:0 8px 24px rgba(192,57,43,0.4);} 50%{box-shadow:0 8px 40px rgba(192,57,43,0.7);} }
+.phone-wave-area { display: flex; align-items: flex-end; justify-content: center; gap: 3px; height: 28px; }
+.pw-bar { width: 4px; border-radius: 2px; background: var(--teal-light); transition: height 0.1s; }
+.phone-status-text { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--muted); text-align: center; min-height: 16px; }
+
+/* MIC CONTROLS */
+.mic-controls { display: flex; flex-direction: column; gap: 24px; }
+.mic-lang-row { display: flex; gap: 12px; align-items: center; }
+.mic-lang-sel { flex: 1; }
+.mic-lang-sel label { display: block; font-size: 0.72rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+.mic-lang-sel select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--line); background: #fff; font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--ink); }
+.mic-swap-btn { margin-top: 22px; padding: 10px; border-radius: 8px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; color: var(--muted); font-size: 1rem; transition: all 0.15s; }
+.mic-swap-btn:hover { border-color: var(--teal); color: var(--teal); }
+.phrase-chooser { display: flex; flex-direction: column; gap: 8px; }
+.phrase-chooser label { font-size: 0.72rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+.phrase-btn-grid { display: flex; flex-direction: column; gap: 6px; }
+.phr-row { display: flex; gap: 6px; align-items: stretch; }
+.phr-btn {
+  text-align: left; padding: 10px 14px; border-radius: 9px; border: 1.5px solid var(--line);
+  background: #fff; color: var(--ink); font-size: 0.87rem; cursor: pointer; transition: all 0.15s;
+  font-family: 'Inter', sans-serif; display: flex; justify-content: space-between; align-items: center;
+  flex: 1; min-width: 0;
+}
+.phr-btn:hover { border-color: var(--teal); background: var(--teal-wash); }
+.phr-btn.active { border-color: var(--teal); background: var(--teal-wash); color: var(--teal); font-weight: 600; }
+.phr-btn .phr-flag { font-size: 0.72rem; color: var(--muted); }
+.phr-listen-btn {
+  flex: 0 0 auto; width: 40px; border-radius: 9px; border: 1.5px solid var(--line);
+  background: #fff; color: var(--teal); font-size: 0.95rem; cursor: pointer; transition: all 0.15s;
+}
+.phr-listen-btn:hover { border-color: var(--ochre); background: var(--ochre-wash); }
+.phr-listen-btn.playing { border-color: var(--teal); background: var(--teal-wash); animation: avatarSpeak 0.15s ease-in-out infinite alternate; }
+
+/* WHY DIFFERENT */
+#different { background: #fff; border-top: 1px solid var(--line); }
+.diff-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+@media (max-width:760px) { .diff-grid { grid-template-columns: 1fr; } }
+.diff-card { padding: 28px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--paper); transition: border-color 0.2s, transform 0.2s; }
+.diff-card:hover { border-color: var(--teal-light); transform: translateY(-2px); }
+.diff-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.diff-icon.ic-ochre { background: var(--ochre-wash); }
+.diff-icon.ic-teal { background: var(--teal-wash); }
+.diff-icon.ic-navy { background: rgba(27,35,64,0.06); }
+.diff-card h4 { margin: 0 0 8px; font-size: 1.05rem; font-family: 'Inter', sans-serif; font-weight: 700; }
+.diff-card p { margin: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+.diff-vs { display: block; margin-top: 10px; font-size: 0.76rem; color: var(--ochre); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+/* PROBLEM */
+#problem { background: var(--paper); }
+.stat-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 48px; }
+@media (max-width:800px) { .stat-cards { grid-template-columns: repeat(2,1fr); } }
+.stat-c { background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 22px; }
+.stat-c .snum { font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 700; color: var(--ochre); display: block; }
+.stat-c:nth-child(even) .snum { color: var(--teal); }
+.stat-c .slab { font-size: 0.84rem; color: var(--muted); line-height: 1.4; margin-top: 4px; display: block; }
+.fam-bars { display: flex; flex-direction: column; gap: 16px; }
+.fam-row { display: grid; grid-template-columns: 100px 1fr 200px; gap: 14px; align-items: center; }
+@media (max-width:640px) { .fam-row { grid-template-columns: 80px 1fr; } .fam-row .fam-ex { display: none; } }
+.fam-name { font-weight: 600; font-size: 0.94rem; }
+.fam-track { height: 10px; background: #EEECEA; border-radius: 5px; overflow: hidden; }
+.fam-fill { height: 100%; border-radius: 5px; width: 0; transition: width 1.2s cubic-bezier(.2,.7,.3,1); }
+.fam-ex { font-size: 0.77rem; color: var(--muted); }
+
+/* HOW */
+#how { background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+@media (max-width:860px) { .steps-grid { grid-template-columns: repeat(2,1fr); } }
+.step-c { background: var(--paper); border: 1.5px solid var(--line); border-radius: 14px; padding: 26px 22px; position: relative; }
+.step-n { position: absolute; top: 18px; right: 20px; font-family: 'Fraunces', serif; font-size: 1.1rem; color: #D4D2CC; font-weight: 700; }
+.step-ic { width: 48px; height: 48px; border-radius: 13px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.step-ic.ic-o { background: var(--ochre-wash); }
+.step-ic.ic-t { background: var(--teal-wash); }
+.step-c h4 { margin: 0 0 7px; font-size: 1rem; font-family: 'Inter', sans-serif; font-weight: 700; }
+.step-c p { margin: 0; font-size: 0.86rem; color: var(--muted); line-height: 1.5; }
+
+/* ROADMAP */
+#roadmap { background: var(--paper); }
+.road-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; }
+@media (max-width:860px) { .road-grid { grid-template-columns: repeat(2,1fr); } }
+.road-c { border: 1.5px solid var(--line); border-radius: 14px; padding: 22px; background: #fff; }
+.road-dot { width: 10px; height: 10px; border-radius: 50%; margin-bottom: 12px; }
+.road-phase { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.road-title { font-weight: 700; margin: 6px 0 8px; font-size: 1.02rem; }
+.road-body { font-size: 0.84rem; color: var(--muted); line-height: 1.55; }
+.road-c.active { border-color: var(--teal-light); background: var(--teal-wash); }
+
+/* FUNDING CTA */
+#funding { background: var(--navy); color: #fff; }
+#funding .sec-head h2 { color: #fff; }
+#funding .sec-head p { color: #9AA2BC; }
+#funding .sec-head .eyebrow { color: var(--ochre-light); }
+.funding-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; }
+@media (max-width:860px) { .funding-grid { grid-template-columns: 1fr; } }
+.funder-list { display: flex; flex-direction: column; gap: 0; }
+.funder { padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; gap: 14px; align-items: flex-start; }
+.funder:last-child { border-bottom: none; }
+.funder-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+.funder-info h5 { margin: 0 0 3px; font-size: 0.95rem; font-family: 'Inter', sans-serif; color: #fff; font-weight: 600; }
+.funder-info p { margin: 0; font-size: 0.8rem; color: #8890AA; line-height: 1.45; }
+.funder-info .famt { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--ochre-light); margin-top: 3px; display: block; }
+.funder-info .femail { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--teal-light); margin-top: 2px; display: block; text-decoration: none; }
+.funder-info .femail:hover { color: #fff; }
+.funding-ask { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+.ask-row { display: flex; gap: 12px; align-items: flex-start; font-size: 0.94rem; color: #C9CEDD; }
+.ask-row svg { flex-shrink: 0; margin-top: 2px; color: var(--teal-light); }
+.ask-total { margin-top: 12px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+.ask-total .ask-num { font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 700; color: var(--ochre-light); display: block; }
+.ask-total .ask-lab { font-size: 0.8rem; color: #8890AA; }
+
+/* VERCEL SECTION */
+#deploy { background: #0E1526; padding: 64px 0; }
+.deploy-inner { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 36px; }
+.deploy-steps { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
+.deploy-step { display: flex; gap: 14px; align-items: flex-start; }
+.ds-num { width: 28px; height: 28px; border-radius: 50%; background: var(--teal); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+.ds-content h5 { margin: 0 0 4px; color: #fff; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.95rem; }
+.ds-content p { margin: 0; color: #8890AA; font-size: 0.85rem; line-height: 1.5; }
+.code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--teal-light); margin-top: 6px; }
+
+/* FOOTER */
+footer { padding: 28px 0; border-top: 1px solid rgba(255,255,255,0.08); background: var(--navy-deep); }
+footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+footer p { margin: 0; font-size: 0.8rem; color: #5A6280; }
+footer a { color: var(--teal-light); text-decoration: none; }
+
+/* UTILS */
+.typing-cursor::after { content: '|'; animation: blink 0.8s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <a href="#" class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </div>
+      Sema
+    </a>
+    <ul>
+      <li><a href="#interpreter">Live Demo</a></li>
+      <li><a href="#signlang">Sign Language</a></li>
+      <li><a href="#different">Why Sema</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#funding">Get Involved</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">AI Language Interpreter · Kenya</div>
+        <h1>Speak your language.<br><em>Every</em> Kenyan<br>speaks back.</h1>
+        <p class="lead">Sema sits between two people and interprets in real time — not a phrase lookup, not a chatbot. A live AI interpreter for all 68+ languages of Kenya, built to work offline where it matters most.</p>
+        <div class="hero-btns">
+          <a href="#interpreter" class="btn btn-primary">▶ Try the live demo</a>
+          <a href="#funding" class="btn btn-ghost">Support the project</a>
+        </div>
+      </div>
+      <div class="hero-stage">
+        <div class="lang-tags">
+          <span class="lang-tag">Kiswahili</span>
+          <span class="lang-tag active-lang">English</span>
+          <span class="lang-tag">Giriama</span>
+          <span class="lang-tag">Dholuo</span>
+          <span class="lang-tag">Kikuyu</span>
+          <span class="lang-tag">Pokomo</span>
+        </div>
+        <div class="orbit-rings">
+          <div class="orbit-ring"></div>
+          <div class="orbit-ring"></div>
+          <div class="orbit-ring"></div>
+        </div>
+        <div class="sema-avatar" id="heroAvatar" title="Click to hear Sema">
+          <!-- Animated face SVG -->
+          <svg class="avatar-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- Eyebrows -->
+            <path d="M 22 24 Q 28 20 34 23" stroke="rgba(255,255,255,0.55)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 46 23 Q 52 20 58 24" stroke="rgba(255,255,255,0.55)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <!-- Eyes -->
+            <ellipse id="eyeL" cx="28" cy="32" rx="5" ry="6" fill="rgba(255,255,255,0.92)"/>
+            <ellipse id="eyeR" cx="52" cy="32" rx="5" ry="6" fill="rgba(255,255,255,0.92)"/>
+            <circle cx="29" cy="33" r="3" fill="rgba(17,102,92,0.9)"/>
+            <circle cx="53" cy="33" r="3" fill="rgba(17,102,92,0.9)"/>
+            <circle cx="30" cy="32" r="1.2" fill="rgba(255,255,255,0.85)"/>
+            <circle cx="54" cy="32" r="1.2" fill="rgba(255,255,255,0.85)"/>
+            <!-- Nose -->
+            <path d="M 40 34 Q 38 42 36 44 Q 39 46 42 44" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <!-- Cheeks -->
+            <ellipse cx="20" cy="44" rx="6" ry="4" fill="rgba(255,255,255,0.06)"/>
+            <ellipse cx="60" cy="44" rx="6" ry="4" fill="rgba(255,255,255,0.06)"/>
+            <!-- Mouth (lips) -->
+            <path id="mouthPath" d="M 28 52 Q 40 60 52 52 Q 40 56 28 52 Z" fill="rgba(255,255,255,0.85)" stroke="rgba(255,255,255,0.85)" stroke-width="1" stroke-linejoin="round"/>
+            <!-- Ear/side details -->
+            <circle cx="14" cy="38" r="4" fill="rgba(255,255,255,0.08)"/>
+            <circle cx="66" cy="38" r="4" fill="rgba(255,255,255,0.08)"/>
+          </svg>
+        </div>
+        <div class="hero-wave" id="heroWave">
+          <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+          <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+          <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="stat-strip">
+    <div class="wrap">
+      <div class="stat-item"><span class="stat-num">68+</span><span class="stat-lab">Kenyan languages</span></div>
+      <div class="stat-item"><span class="stat-num">2</span><span class="stat-lab">Currently served by tech</span></div>
+      <div class="stat-item"><span class="stat-num">0ms</span><span class="stat-lab">Network needed offline</span></div>
+      <div class="stat-item"><span class="stat-num">∞</span><span class="stat-lab">Conversations possible</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE INTERPRETER -->
+<section id="interpreter">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">The core feature</span>
+      <h2>A real-time AI interpreter between two people</h2>
+      <p>Not a dictionary. Not a chatbot. Sema sits between Person A and Person B, listens to each side, and speaks back in the other person's language — live, turn by turn. Try it below.</p>
+    </div>
+
+    <div class="interp-stage">
+      <div class="interp-top">
+        <!-- Person A -->
+        <div class="interp-person person-a">
+          <div class="person-header">
+            <div class="person-badge badge-a">A</div>
+            <div style="flex:1">
+              <label>Person A speaks</label>
+              <select id="interpLangA">
+                <option value="gir">Giriama (pilot)</option>
+                <option value="sw" selected>Kiswahili</option>
+                <option value="en">English</option>
+                <option value="ki">Kikuyu</option>
+                <option value="luo">Dholuo</option>
+                <option value="so">Somali</option>
+                <option value="maa">Maasai</option>
+                <option value="pok">Pokomo (pilot)</option>
+              </select>
+            </div>
+          </div>
+          <div class="person-speech-area" id="speechAreaA">
+            <span class="speech-lang-tag" id="speechTagA">Kiswahili</span>
+            <div class="speech-original" id="speechOrigA">—</div>
+            <div class="speech-translated" id="speechTransA">—</div>
+            <div class="speaking-indicator" id="speakIndA"></div>
+          </div>
+        </div>
+
+        <!-- Center AI -->
+        <div class="interp-center">
+          <div class="flow-arrows">▲</div>
+          <div class="center-avatar-wrap">
+            <div class="center-rings">
+              <div class="center-ring"></div>
+              <div class="center-ring"></div>
+              <div class="center-ring"></div>
+            </div>
+            <div class="center-avatar" id="centerAvatar">
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </div>
+          </div>
+          <div class="flow-label" id="centerLabel">SEMA<br>Interpreter</div>
+          <div class="flow-arrows">▼</div>
+        </div>
+
+        <!-- Person B -->
+        <div class="interp-person person-b">
+          <div class="person-header">
+            <div class="person-badge badge-b">B</div>
+            <div style="flex:1">
+              <label>Person B speaks</label>
+              <select id="interpLangB">
+                <option value="gir">Giriama (pilot)</option>
+                <option value="sw">Kiswahili</option>
+                <option value="en" selected>English</option>
+                <option value="ki">Kikuyu</option>
+                <option value="luo">Dholuo</option>
+                <option value="so">Somali</option>
+                <option value="maa">Maasai</option>
+                <option value="pok">Pokomo (pilot)</option>
+              </select>
+            </div>
+          </div>
+          <div class="person-speech-area" id="speechAreaB">
+            <span class="speech-lang-tag" id="speechTagB">English</span>
+            <div class="speech-original" id="speechOrigB">—</div>
+            <div class="speech-translated" id="speechTransB">—</div>
+            <div class="speaking-indicator" id="speakIndB"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phrase chips -->
+      <div class="interp-controls">
+        <div class="phrase-chips" id="phraseChips"></div>
+        <div class="interp-btn-group">
+          <button class="btn btn-primary" id="interpPlayBtn">▶ Play conversation</button>
+          <button class="btn btn-ghost" id="interpResetBtn" style="color:#8890AA;border-color:rgba(255,255,255,0.15)">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- Transcript -->
+      <div class="interp-transcript" id="interpTranscript">
+        <div class="transcript-empty">Choose two languages and press <strong>Play conversation</strong> — Sema will interpret each turn in real time.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIGN LANGUAGE -->
+<section id="signlang">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Future integration</span>
+      <h2>Kenyan Sign Language — built into the roadmap</h2>
+      <p>KSL is used by over 600,000 Kenyans. Phase 4 of Sema integrates real-time sign language recognition and generation — the first AI interpreter to bridge spoken and signed Kenyan languages simultaneously.</p>
+    </div>
+    <div class="sign-grid">
+      <div class="sign-demo-area">
+        <div class="sign-word-display" id="signWordDisplay">
+          <span id="signWord">Jambo</span>
+        </div>
+        <div class="sign-hand-container">
+          <div class="hand-wrap">
+            <svg class="hand-svg" id="handLeft" viewBox="0 0 90 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Animated hand SVG - left -->
+              <rect x="20" y="40" width="50" height="55" rx="12" fill="rgba(255,255,255,0.12)" class="hand-palm"/>
+              <rect id="hl-f1" x="20" y="15" width="10" height="32" rx="5" fill="rgba(255,255,255,0.7)" class="hand-finger"/>
+              <rect id="hl-f2" x="33" y="8" width="10" height="38" rx="5" fill="rgba(255,255,255,0.85)" class="hand-finger"/>
+              <rect id="hl-f3" x="46" y="10" width="10" height="36" rx="5" fill="rgba(255,255,255,0.85)" class="hand-finger"/>
+              <rect id="hl-f4" x="59" y="18" width="9" height="29" rx="5" fill="rgba(255,255,255,0.7)" class="hand-finger"/>
+              <rect id="hl-thumb" x="8" y="52" width="16" height="9" rx="4.5" fill="rgba(255,255,255,0.6)" class="hand-thumb"/>
+            </svg>
+            <div class="hand-label">Left</div>
+          </div>
+          <div class="hand-wrap">
+            <svg class="hand-svg" id="handRight" viewBox="0 0 90 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Animated hand SVG - right -->
+              <rect x="20" y="40" width="50" height="55" rx="12" fill="rgba(79,163,150,0.15)" class="hand-palm"/>
+              <rect id="hr-f1" x="20" y="15" width="10" height="32" rx="5" fill="rgba(79,163,150,0.8)" class="hand-finger"/>
+              <rect id="hr-f2" x="33" y="8" width="10" height="38" rx="5" fill="rgba(79,163,150,0.9)" class="hand-finger"/>
+              <rect id="hr-f3" x="46" y="10" width="10" height="36" rx="5" fill="rgba(79,163,150,0.9)" class="hand-finger"/>
+              <rect id="hr-f4" x="59" y="18" width="9" height="29" rx="5" fill="rgba(79,163,150,0.7)" class="hand-finger"/>
+              <rect id="hr-thumb" x="66" y="52" width="16" height="9" rx="4.5" fill="rgba(79,163,150,0.6)" class="hand-thumb"/>
+            </svg>
+            <div class="hand-label" style="color:rgba(79,163,150,0.7)">Right</div>
+          </div>
+        </div>
+        <div class="sign-translation" id="signTranslation">Greeting in KSL</div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-ghost" id="signPrevBtn" style="font-size:0.8rem;padding:8px 14px;border-color:rgba(255,255,255,0.2)">← Prev</button>
+          <button class="btn btn-teal" id="signNextBtn" style="font-size:0.8rem;padding:8px 14px;">Next sign →</button>
+        </div>
+      </div>
+      <div class="sign-features">
+        <div class="sign-feat">
+          <div class="sign-feat-icon ic-teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          </div>
+          <div>
+            <h4>Real-time sign recognition</h4>
+            <p>The device camera detects hand shapes and movements using a lightweight on-device vision model — no cloud upload needed.</p>
+            <span class="coming-chip">📅 Phase 4 · Year 2–3</span>
+          </div>
+        </div>
+        <div class="sign-feat">
+          <div class="sign-feat-icon ic-ochre">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ochre)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          </div>
+          <div>
+            <h4>Voice-to-sign and sign-to-voice</h4>
+            <p>A hearing person speaks — Sema generates a KSL avatar animation. A Deaf person signs — Sema speaks the meaning aloud in any Kenyan language.</p>
+            <span class="coming-chip">📅 Phase 4 · Year 2–3</span>
+          </div>
+        </div>
+        <div class="sign-feat">
+          <div class="sign-feat-icon ic-teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div>
+            <h4>600,000+ Kenyans included</h4>
+            <p>KSL is Kenya's only officially recognised sign language — used in schools for the Deaf, hospitals, and courts. Most AI tools completely ignore it.</p>
+            <span class="coming-chip">🤝 Partner needed · Deaf Kenya community</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHRASE DEMO -->
+<section id="mic-demo">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Phrase-by-phrase view</span>
+      <h2>Tap a phrase. Sema listens, translates, speaks back.</h2>
+      <p>This shows the device interface — how a real conversation flows phrase by phrase. Your browser's voice engine speaks the translation aloud.</p>
+    </div>
+    <div class="mic-grid">
+      <div class="phone-mockup">
+        <div class="phone-screen">
+          <div class="phone-bar">
+            <span class="phone-app-name">Sema</span>
+            <span class="phone-status" id="phoneStatus">● Offline ready</span>
+          </div>
+          <div class="phone-lang-pair">
+            <span class="plp-from" id="plpFrom">Kiswahili</span>
+            <span class="plp-arrow">→</span>
+            <span class="plp-to" id="plpTo">English</span>
+          </div>
+          <div class="phone-content" id="phoneContent">
+            <div style="margin:auto;text-align:center;color:var(--muted);font-size:0.83rem;padding:20px 0;">
+              Tap a phrase on the right to begin
+            </div>
+          </div>
+          <div class="phone-mic-area">
+            <div class="phone-wave-area" id="phoneWave">
+              <div class="pw-bar" style="height:6px"></div>
+              <div class="pw-bar" style="height:8px"></div>
+              <div class="pw-bar" style="height:14px"></div>
+              <div class="pw-bar" style="height:10px"></div>
+              <div class="pw-bar" style="height:6px"></div>
+              <div class="pw-bar" style="height:12px"></div>
+              <div class="pw-bar" style="height:8px"></div>
+            </div>
+            <button class="mic-btn" id="mainMicBtn">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </button>
+            <div class="phone-status-text" id="phoneStatusText">Ready — tap a phrase to translate</div>
+          </div>
+        </div>
+      </div>
+      <div class="mic-controls">
+        <div class="mic-lang-row">
+          <div class="mic-lang-sel">
+            <label>Speaking in</label>
+            <select id="micSrcLang">
+              <option value="sw" selected>Kiswahili</option>
+              <option value="en">English</option>
+              <option value="ki">Kikuyu</option>
+              <option value="luo">Dholuo</option>
+              <option value="so">Somali</option>
+              <option value="maa">Maasai</option>
+              <option value="gir">Giriama (pilot)</option>
+              <option value="pok">Pokomo (pilot)</option>
+            </select>
+          </div>
+          <button class="mic-swap-btn" id="micSwapBtn" title="Swap languages">⇄</button>
+          <div class="mic-lang-sel">
+            <label>Translate to</label>
+            <select id="micTgtLang">
+              <option value="sw">Kiswahili</option>
+              <option value="en" selected>English</option>
+              <option value="ki">Kikuyu</option>
+              <option value="luo">Dholuo</option>
+              <option value="so">Somali</option>
+              <option value="maa">Maasai</option>
+              <option value="gir">Giriama (pilot)</option>
+              <option value="pok">Pokomo (pilot)</option>
+            </select>
+          </div>
+        </div>
+        <div class="mic-lang-sel" style="max-width:220px;">
+          <label>Voice</label>
+          <select id="voiceGender">
+            <option value="female" selected>Woman's voice</option>
+            <option value="male">Man's voice</option>
+          </select>
+        </div>
+        <div class="phrase-chooser">
+          <label>Try a phrase — tap to translate, or tap 🔊 to just listen</label>
+          <div class="phrase-btn-grid" id="phraseBtnGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY DIFFERENT -->
+<section id="different">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Why Sema is different</span>
+      <h2>Others have thought about this. Here's the gap we're actually closing.</h2>
+      <p>Translator apps exist. "AI for African languages" initiatives exist. Sema is built where most of them stop.</p>
+    </div>
+    <div class="diff-grid">
+      <div class="diff-card">
+        <div class="diff-icon ic-ochre">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ochre)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h4>A live conversation, not a phrase lookup</h4>
+        <p>Most apps handle one phrase at a time. Sema maintains a full conversation thread — each person speaks naturally, Sema tracks context, and both sides hear real, contextual responses.</p>
+        <span class="diff-vs">vs. single-phrase translator apps</span>
+      </div>
+      <div class="diff-card">
+        <div class="diff-icon ic-teal">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <h4>Starts with the overlooked languages first</h4>
+        <p>Giriama, Pokomo, Rendille, Orma — languages spoken by hundreds of thousands but absent from every major AI tool. Sema names them explicitly from day one, not as a future afterthought.</p>
+        <span class="diff-vs">vs. population-first roadmaps</span>
+      </div>
+      <div class="diff-card">
+        <div class="diff-icon ic-ochre">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ochre)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 9l4-4 4 4M1 15l4 4 4-4"/><path d="M9 5h13M9 19h13"/></svg>
+        </div>
+        <h4>Designed to work without a network</h4>
+        <p>Cloud translation fails in rural Kilifi, Tana River, or the northeast the moment signal drops. Sema's core models run on-device — it works precisely where big-tech solutions quietly stop.</p>
+        <span class="diff-vs">vs. cloud-only translation tools</span>
+      </div>
+      <div class="diff-card">
+        <div class="diff-icon ic-teal">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <h4>Honest about what it doesn't know yet</h4>
+        <p>Giriama and Pokomo phrases are flagged as unverified — not guessed. This discipline is what keeps Sema trustworthy in healthcare and legal settings where a wrong translation causes real harm.</p>
+        <span class="diff-vs">vs. tools that guess silently</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Why it matters</span>
+      <h2>Kenya speaks in 68+ voices. Most tools hear only two.</h2>
+      <p>English and Kiswahili dominate government, healthcare, and commerce — leaving millions without access to basic digital communication tools in their mother tongue.</p>
+    </div>
+    <div class="stat-cards">
+      <div class="stat-c"><span class="snum">68+</span><span class="slab">Living languages across 3 language families</span></div>
+      <div class="stat-c"><span class="snum">600K+</span><span class="slab">KSL users not covered by any AI interpreter</span></div>
+      <div class="stat-c"><span class="snum">40%</span><span class="slab">Of Kenyans in areas with poor connectivity</span></div>
+      <div class="stat-c"><span class="snum">2</span><span class="slab">Languages served by current AI translation tools</span></div>
+    </div>
+    <div class="fam-bars" id="famBars">
+      <div class="fam-row">
+        <div class="fam-name">Bantu</div>
+        <div class="fam-track"><div class="fam-fill" data-w="62" style="background:var(--ochre);"></div></div>
+        <div class="fam-ex">Kiswahili, Kikuyu, Luhya, Kamba, Giriama, Pokomo</div>
+      </div>
+      <div class="fam-row">
+        <div class="fam-name">Nilotic</div>
+        <div class="fam-track"><div class="fam-fill" data-w="27" style="background:var(--teal);"></div></div>
+        <div class="fam-ex">Dholuo, Maasai, Turkana, Kalenjin cluster</div>
+      </div>
+      <div class="fam-row">
+        <div class="fam-name">Cushitic</div>
+        <div class="fam-track"><div class="fam-fill" data-w="11" style="background:var(--navy);"></div></div>
+        <div class="fam-ex">Somali, Boran, Rendille, Orma</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">How it works</span>
+      <h2>Four steps. Built to run without a signal.</h2>
+      <p>Core models run on-device — Sema keeps working in rural areas with poor connectivity, syncing improvements only when network is available.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-c">
+        <div class="step-n">01</div>
+        <div class="step-ic ic-o"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ochre)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div>
+        <h4>Listen</h4>
+        <p>A noise-tolerant mic captures speech in any Kenyan language. Handles accents, background noise, and code-switching mid-sentence.</p>
+      </div>
+      <div class="step-c">
+        <div class="step-n">02</div>
+        <div class="step-ic ic-t"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg></div>
+        <h4>Identify</h4>
+        <p>An on-device model detects which language and dialect is being spoken — distinguishing Giriama from Pokomo, Dholuo from Maasai.</p>
+      </div>
+      <div class="step-c">
+        <div class="step-n">03</div>
+        <div class="step-ic ic-o"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ochre)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6M12 19h8"/></svg></div>
+        <h4>Translate</h4>
+        <p>Neural translation converts meaning — not just words — preserving context, tone, and intent across the language pair.</p>
+      </div>
+      <div class="step-c">
+        <div class="step-n">04</div>
+        <div class="step-ic ic-t"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></div>
+        <h4>Speak</h4>
+        <p>Natural text-to-speech responds aloud in the listener's own language — at natural speed, with correct tonal patterns where applicable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Rollout plan</span>
+      <h2>A phased rollout — prove demand before expanding.</h2>
+      <p>Each phase delivers a usable product before the next begins. Early funders get a working prototype, not a promise.</p>
+    </div>
+    <div class="road-grid">
+      <div class="road-c active">
+        <div class="road-dot" style="background:var(--ochre);"></div>
+        <div class="road-phase">Phase 1 · 0–6 months</div>
+        <div class="road-title">Foundation</div>
+        <div class="road-body">Kiswahili ↔ English prototype. University data partnerships. Pilot in Nairobi & Mombasa. Native speaker validation.</div>
+      </div>
+      <div class="road-c">
+        <div class="road-dot" style="background:var(--teal);"></div>
+        <div class="road-phase">Phase 2 · 6–12 months</div>
+        <div class="road-title">Reach</div>
+        <div class="road-body">Add Kikuyu, Luhya, Dholuo, Kamba, Somali. First Giriama and Pokomo community data partnerships on the coast.</div>
+      </div>
+      <div class="road-c">
+        <div class="road-dot" style="background:var(--navy);"></div>
+        <div class="road-phase">Phase 3 · Year 1–2</div>
+        <div class="road-title">Hardware Device</div>
+        <div class="road-body">Handheld device pilot for healthcare workers and teachers. Maasai, Turkana, Meru, Kisii, Embu, Samburu added.</div>
+      </div>
+      <div class="road-c">
+        <div class="road-dot" style="background:#7B5C3F;"></div>
+        <div class="road-phase">Phase 4 · Year 2–3</div>
+        <div class="road-title">Full Coverage + KSL</div>
+        <div class="road-body">All Mijikenda languages, Rendille, Orma, Boran. Kenyan Sign Language integration. 60+ language pairs.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDING -->
+<section id="funding">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Get involved</span>
+      <h2>We're not asking you to take the need on faith.</h2>
+      <p>The gap is documented. The technology exists. What's missing is the funding to build it properly — with native speakers, not around them.</p>
+    </div>
+    <div style="max-width:560px;margin:0 auto;">
+      <div class="funding-ask">
+        <div class="eyebrow" style="color:#5A6280;margin-bottom:8px;display:block;">What we're asking for</div>
+        <div class="ask-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Seed / grant funding for the Phase 1 prototype
+        </div>
+        <div class="ask-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Introductions to linguists, community elders, and pilot sites on the Kenyan coast
+        </div>
+        <div class="ask-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Technical mentorship from African-language AI practitioners
+        </div>
+        <div class="ask-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          GPU compute credits for model training (Google Cloud / AWS)
+        </div>
+        <div class="ask-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          A pilot deployment site — one hospital or school willing to trial Phase 1
+        </div>
+        <div class="ask-total">
+          <span class="ask-num">$25K–$50K</span>
+          <span class="ask-lab">Phase 1 target · builds Kiswahili↔English MVP with 3 community languages</span>
+        </div>
+        <a href="mailto:hello@sema.africa" class="btn btn-primary" style="margin-top:16px;text-align:center;justify-content:center;">📩 Get in touch</a>
+        <a href="#" class="btn btn-ghost" style="margin-top:8px;text-align:center;justify-content:center;border-color:rgba(255,255,255,0.2);">Download pitch deck</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><strong style="color:#8890AA;">Sema</strong> — a concept proposal built for donors &amp; partners.</p>
+    <p>Demo is illustrative — phrases marked (pilot) require native-speaker validation before real deployment.</p>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+const LANGS = [
+  { code:"sw", label:"Kiswahili", flag:"🇰🇪" },
+  { code:"en", label:"English", flag:"🌐" },
+  { code:"ki", label:"Kikuyu", flag:"🇰🇪" },
+  { code:"luo", label:"Dholuo", flag:"🇰🇪" },
+  { code:"so", label:"Somali", flag:"🇸🇴" },
+  { code:"maa", label:"Maasai", flag:"🇰🇪" },
+  { code:"gir", label:"Giriama", flag:"🇰🇪", pilot:true },
+  { code:"pok", label:"Pokomo", flag:"🇰🇪", pilot:true },
+];
+const PENDING = ["gir","pok"];
+
+const PHRASES = [
+  {
+    id:"greet", label:"Greeting", icon:"👋",
+    text:{
+      sw:"Hujambo! Habari yako leo?",
+      en:"Hello! How are you today?",
+      ki:"Wĩ mwega ũhoro waku?",
+      luo:"Inadi? Amosi chenyi?",
+      so:"Iska warran? Sidee tahay?",
+      maa:"Sopa! Kapati ake?"
+    },
+    tts:{ en:"Hello! How are you today?", sw:"Hujambo! Habari yako leo?" }
+  },
+  {
+    id:"clinic", label:"At the clinic", icon:"🏥",
+    text:{
+      sw:"Nina maumivu ya kichwa na homa.",
+      en:"I have a headache and fever.",
+      ki:"Nĩ ndĩ na maumivu wa mutwe na homa.",
+      luo:"Wiyo mar miy ritho gi homa.",
+      so:"Madax xanuun iyo qandho ayaa ii haysa.",
+      maa:"Nkishu enkarna le entito."
+    },
+    tts:{ en:"I have a headache and fever.", sw:"Nina maumivu ya kichwa na homa." }
+  },
+  {
+    id:"market", label:"At the market", icon:"🛒",
+    text:{
+      sw:"Bei ya hii ni ngapi? Naweza kupata punguzo?",
+      en:"How much is this? Can I get a discount?",
+      ki:"Thogora wa ĩno nĩ ngai? Nĩ ũngĩnyonia?",
+      luo:"Nengo mar gima e adi? Inyalo tyogo?",
+      so:"Alaabtan imisay? Ma qiimo dhac heli karaa?",
+      maa:"Enkeraí naa? Inkishu ake?"
+    },
+    tts:{ en:"How much is this? Can I get a discount?", sw:"Bei ya hii ni ngapi?" }
+  },
+  {
+    id:"school", label:"In school", icon:"📚",
+    text:{
+      sw:"Mtoto wangu anahitaji msaada wa masomo.",
+      en:"My child needs help with their studies.",
+      ki:"Mwana wakwa nĩ ahikagia ũteithio wa mĩarabu.",
+      luo:"Nyathi mar onyalo konyo mar sikul.",
+      so:"Ilmahaygu waxbarashadisa caawimaad ayuu u baahan yahay.",
+      maa:"Entito lanyorr enkiama le entito."
+    },
+    tts:{ en:"My child needs help with their studies.", sw:"Mtoto wangu anahitaji msaada wa masomo." }
+  },
+  {
+    id:"directions", label:"Asking directions", icon:"🗺️",
+    text:{
+      sw:"Tafadhali, hospitali iko wapi?",
+      en:"Please, where is the hospital?",
+      ki:"Tafadhali, hospitali ĩrĩ hĩ?",
+      luo:"Yie, hospitali ni kanye?",
+      so:"Fadlan, cisbitaalku xagee yahay?",
+      maa:"Ayieyio, hospitali enkai?"
+    },
+    tts:{ en:"Please, where is the hospital?", sw:"Tafadhali, hospitali iko wapi?" }
+  },
+];
+
+function getLang(code){ return LANGS.find(l=>l.code===code); }
+function isPending(code){ return PENDING.includes(code); }
+function pendingText(code){ return `[${getLang(code)?.label} — unverified phrase, pending native-speaker data. This is the exact gap Phase 1 closes.]`; }
+function getPhrase(phraseId, code){ const p=PHRASES.find(ph=>ph.id===phraseId); if(!p) return ""; if(isPending(code)||!p.text[code]) return pendingText(code); return p.text[code]; }
+
+// ═══════════════════════════════════════════════════════════════
+// TTS
+// ═══════════════════════════════════════════════════════════════
+const FEMALE_VOICE_HINTS = ["female","woman","samantha","victoria","zira","susan","karen","tessa","moira","fiona","allison","ava","serena","kate"];
+const MALE_VOICE_HINTS = ["male","man","daniel","alex","fred","david","james","tom","george","aaron","gordon"];
+
+function pickVoice(lang, gender){
+  if(!("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if(!voices || !voices.length) return null;
+  const hints = gender==="male" ? MALE_VOICE_HINTS : FEMALE_VOICE_HINTS;
+  const langPrefix = lang.split("-")[0];
+  // Prefer a voice matching both language and gender hint
+  let match = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(langPrefix) && hints.some(h=>v.name.toLowerCase().includes(h)));
+  if(match) return match;
+  // Fall back to any voice matching the gender hint
+  match = voices.find(v => hints.some(h=>v.name.toLowerCase().includes(h)));
+  if(match) return match;
+  // Fall back to matching language only
+  match = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(langPrefix));
+  return match || null;
+}
+
+function getSelectedGender(){
+  const el=document.getElementById("voiceGender");
+  return el ? el.value : "female";
+}
+
+function speak(text, lang){
+  if(!("speechSynthesis" in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    let langTag;
+    if(lang==="sw"||lang==="ki"||lang==="luo"||lang==="luy") langTag="sw-KE";
+    else if(lang==="so") langTag="so";
+    else langTag="en-GB";
+    u.lang = langTag;
+    const gender = getSelectedGender();
+    const voice = pickVoice(langTag, gender);
+    if(voice) u.voice = voice;
+    // Nudge pitch as a fallback cue when no distinct matching voice is available on this device
+    u.pitch = gender==="male" ? 0.85 : 1.15;
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+  } catch(e){}
+}
+// Some browsers load voices asynchronously — warm the cache so pickVoice has data on first use
+if("speechSynthesis" in window){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HERO AVATAR BLINK
+// ═══════════════════════════════════════════════════════════════
+function blinkEyes(){
+  const eL=document.getElementById("eyeL"), eR=document.getElementById("eyeR");
+  if(!eL) return;
+  eL.setAttribute("ry","1"); eR.setAttribute("ry","1");
+  setTimeout(()=>{ eL.setAttribute("ry","6"); eR.setAttribute("ry","6"); }, 150);
+}
+setInterval(blinkEyes, 3200);
+
+const MOUTH_SHAPES = [
+  "M 28 52 Q 40 60 52 52 Q 40 56 28 52 Z",   // gentle smile, closed
+  "M 27 51 Q 40 66 53 51 Q 40 61 27 51 Z",   // wide open
+  "M 29 52 Q 40 58 51 52 Q 40 55 29 52 Z",   // half open
+  "M 28 52 Q 40 63 52 52 Q 40 58 28 52 Z",   // open-ish
+];
+let mouthTalkInterval=null;
+function startMouthTalking(){
+  const mouth=document.getElementById("mouthPath");
+  if(!mouth) return;
+  let i=0;
+  clearInterval(mouthTalkInterval);
+  mouthTalkInterval=setInterval(()=>{
+    mouth.setAttribute("d", MOUTH_SHAPES[i % MOUTH_SHAPES.length]);
+    i++;
+  }, 130);
+}
+function stopMouthTalking(){
+  clearInterval(mouthTalkInterval);
+  const mouth=document.getElementById("mouthPath");
+  if(mouth) mouth.setAttribute("d", MOUTH_SHAPES[0]);
+}
+
+document.getElementById("heroAvatar").addEventListener("click", ()=>{
+  speak("Habari. Mimi ni Sema, mkalimani wako wa lugha za Kenya.", "sw");
+  document.getElementById("heroAvatar").classList.add("speaking");
+  startMouthTalking();
+  setTimeout(()=>{
+    document.getElementById("heroAvatar").classList.remove("speaking");
+    stopMouthTalking();
+  }, 3000);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// LIVE INTERPRETER
+// ═══════════════════════════════════════════════════════════════
+const INTERP_PHRASES = PHRASES;
+let interpRunning=false, interpIdx=0, interpTimer=null;
+
+// Build phrase chips
+const chipsEl = document.getElementById("phraseChips");
+PHRASES.forEach((p,i)=>{
+  const ch=document.createElement("button");
+  ch.className="phrase-chip";
+  ch.textContent=p.icon+" "+p.label;
+  ch.dataset.idx=i;
+  ch.addEventListener("click",()=>{ runInterpSingle(i); });
+  chipsEl.appendChild(ch);
+});
+
+function setChipActive(idx){
+  document.querySelectorAll(".phrase-chip").forEach((c,i)=>c.classList.toggle("active",i===idx));
+}
+
+function runInterpSingle(phraseIdx){
+  if(interpRunning) return;
+  const p = PHRASES[phraseIdx];
+  const langA = document.getElementById("interpLangA").value;
+  const langB = document.getElementById("interpLangB").value;
+  setChipActive(phraseIdx);
+
+  const textA = getPhrase(p.id, langA);
+  const textB = getPhrase(p.id, langB);
+
+  // Show A speaking
+  setInterpState("A", textA, textB, langA, langB, p);
+  setTimeout(()=>{
+    if(!isPending(langB)&&p.text[langB]) speak(textB, langB);
+    addTranscriptTurn("A", langA, langB, textA, textB, p.id);
+  }, 1200);
+}
+
+function setInterpState(speaker, origText, transText, langA, langB, phrase){
+  const isA = speaker==="A";
+  document.getElementById("speechTagA").textContent = getLang(langA)?.label;
+  document.getElementById("speechTagB").textContent = getLang(langB)?.label;
+  document.getElementById("speechOrigA").textContent = isA ? origText : "—";
+  document.getElementById("speechTransA").textContent = isA ? transText : "—";
+  document.getElementById("speechOrigB").textContent = !isA ? origText : "—";
+  document.getElementById("speechTransB").textContent = !isA ? transText : "—";
+  document.getElementById("speakIndA").classList.toggle("active", isA);
+  document.getElementById("speakIndB").classList.toggle("active", !isA);
+  const ca=document.getElementById("centerAvatar");
+  ca.classList.add("active");
+  setTimeout(()=>ca.classList.remove("active"),1800);
+}
+
+function addTranscriptTurn(speaker, langSpeak, langHear, orig, trans, phraseId){
+  const tc=document.getElementById("interpTranscript");
+  const empty=tc.querySelector(".transcript-empty");
+  if(empty) empty.remove();
+
+  const isA=speaker==="A";
+  const div=document.createElement("div");
+  div.className="t-turn "+(isA?"turn-a":"turn-b");
+  const pending = isPending(isA?langSpeak:langHear);
+  div.innerHTML=`<div class="t-av ${isA?"av-a":"av-b"}">${speaker}</div>
+    <div class="t-bubbles">
+      <div class="t-orig"><span class="t-lang">${getLang(isA?langSpeak:langHear)?.label}</span>${orig}</div>
+      <div class="t-trans" style="${pending?'color:#5A6280;border:1px dashed rgba(255,255,255,0.1);border-radius:8px;padding:4px 8px;':''}">${pending?"⚠️ "+trans:trans}</div>
+    </div>`;
+  tc.appendChild(div);
+  tc.scrollTop=tc.scrollHeight;
+}
+
+document.getElementById("interpPlayBtn").addEventListener("click",()=>{
+  if(interpRunning) return;
+  interpRunning=true;
+  interpIdx=0;
+  document.getElementById("interpTranscript").innerHTML="";
+  document.getElementById("interpPlayBtn").textContent="Playing...";
+  document.getElementById("interpPlayBtn").disabled=true;
+
+  const langA=document.getElementById("interpLangA").value;
+  const langB=document.getElementById("interpLangB").value;
+
+  function nextInterpTurn(){
+    if(interpIdx>=PHRASES.length){ interpRunning=false; document.getElementById("interpPlayBtn").textContent="▶ Play conversation"; document.getElementById("interpPlayBtn").disabled=false; return; }
+    const p=PHRASES[interpIdx];
+    const isA=interpIdx%2===0;
+    const speaker=isA?"A":"B";
+    const langSpeak=isA?langA:langB;
+    const langHear=isA?langB:langA;
+    const orig=getPhrase(p.id,langSpeak);
+    const trans=getPhrase(p.id,langHear);
+    setChipActive(interpIdx);
+    setInterpState(speaker,orig,trans,langA,langB,p);
+    setTimeout(()=>{
+      if(!isPending(langHear)&&p.text[langHear]) speak(trans,langHear);
+      addTranscriptTurn(speaker,langSpeak,langHear,orig,trans,p.id);
+    },800);
+    interpIdx++;
+    interpTimer=setTimeout(nextInterpTurn,2800);
+  }
+  nextInterpTurn();
+});
+
+document.getElementById("interpResetBtn").addEventListener("click",()=>{
+  interpRunning=false;
+  clearTimeout(interpTimer);
+  if("speechSynthesis" in window) window.speechSynthesis.cancel();
+  document.getElementById("interpTranscript").innerHTML='<div class="transcript-empty">Choose two languages and press <strong>Play conversation</strong> — Sema will interpret each turn in real time.</div>';
+  document.getElementById("speechOrigA").textContent="—";
+  document.getElementById("speechTransA").textContent="—";
+  document.getElementById("speechOrigB").textContent="—";
+  document.getElementById("speechTransB").textContent="—";
+  document.getElementById("speakIndA").classList.remove("active");
+  document.getElementById("speakIndB").classList.remove("active");
+  document.getElementById("interpPlayBtn").textContent="▶ Play conversation";
+  document.getElementById("interpPlayBtn").disabled=false;
+  document.querySelectorAll(".phrase-chip").forEach(c=>c.classList.remove("active"));
+});
+
+// ═══════════════════════════════════════════════════════════════
+// MIC DEMO
+// ═══════════════════════════════════════════════════════════════
+const phraseBtnGrid=document.getElementById("phraseBtnGrid");
+let micActive=false, currentPhrase=null;
+
+function buildPhraseButtons(){
+  phraseBtnGrid.innerHTML="";
+  PHRASES.forEach((p,i)=>{
+    const row=document.createElement("div");
+    row.className="phr-row";
+
+    const btn=document.createElement("button");
+    btn.className="phr-btn"+(currentPhrase===p.id?" active":"");
+    btn.innerHTML=`${p.icon} ${p.label} <span class="phr-flag">${document.getElementById("micSrcLang").value==="sw"?p.text.sw?.slice(0,20)+"…":p.text.en?.slice(0,20)+"…"}</span>`;
+    btn.addEventListener("click",()=>runMicDemo(p));
+
+    const listenBtn=document.createElement("button");
+    listenBtn.className="phr-listen-btn";
+    listenBtn.title="Just listen — no translation";
+    listenBtn.innerHTML="🔊";
+    listenBtn.addEventListener("click",(e)=>{
+      e.stopPropagation();
+      listenToPhrase(p, listenBtn);
+    });
+
+    row.appendChild(btn);
+    row.appendChild(listenBtn);
+    phraseBtnGrid.appendChild(row);
+  });
+}
+buildPhraseButtons();
+
+function listenToPhrase(phrase, btnEl){
+  const src=document.getElementById("micSrcLang").value;
+  if(isPending(src)||!phrase.text[src]) return; // no verified audio yet for pilot languages
+  const text=phrase.tts?.[src]||phrase.text[src];
+  btnEl.classList.add("playing");
+  speak(text, src);
+  setTimeout(()=>btnEl.classList.remove("playing"), 900);
+}
+
+function updatePhoneLangPair(){
+  const src=getLang(document.getElementById("micSrcLang").value);
+  const tgt=getLang(document.getElementById("micTgtLang").value);
+  document.getElementById("plpFrom").textContent=src?.label;
+  document.getElementById("plpTo").textContent=tgt?.label;
+  buildPhraseButtons();
+}
+document.getElementById("micSrcLang").addEventListener("change",updatePhoneLangPair);
+document.getElementById("micTgtLang").addEventListener("change",updatePhoneLangPair);
+document.getElementById("micSwapBtn").addEventListener("click",()=>{
+  const a=document.getElementById("micSrcLang").value;
+  const b=document.getElementById("micTgtLang").value;
+  document.getElementById("micSrcLang").value=b;
+  document.getElementById("micTgtLang").value=a;
+  updatePhoneLangPair();
+});
+
+function animatePhoneWave(active){
+  const bars=document.querySelectorAll("#phoneWave .pw-bar");
+  if(active){
+    bars.forEach(b=>{ const h=Math.random()*26+6; b.style.height=h+"px"; b.style.background="var(--teal)"; });
+  } else {
+    bars.forEach(b=>{ b.style.height="6px"; b.style.background="var(--line)"; });
+  }
+}
+let waveInterval=null;
+
+function runMicDemo(phrase){
+  if(micActive) return;
+  micActive=true;
+  currentPhrase=phrase.id;
+  buildPhraseButtons();
+  const src=document.getElementById("micSrcLang").value;
+  const tgt=document.getElementById("micTgtLang").value;
+  const srcText=getPhrase(phrase.id,src);
+  const tgtText=getPhrase(phrase.id,tgt);
+  const srcPending=isPending(src)||!phrase.text[src];
+  const tgtPending=isPending(tgt)||!phrase.text[tgt];
+
+  // Start recording animation
+  document.getElementById("mainMicBtn").classList.add("recording");
+  document.getElementById("phoneStatusText").textContent="Listening...";
+  document.getElementById("phoneStatus").textContent="● Recording";
+  document.getElementById("phoneContent").innerHTML="";
+  waveInterval=setInterval(()=>animatePhoneWave(true),100);
+
+  setTimeout(()=>{
+    clearInterval(waveInterval);
+    animatePhoneWave(false);
+    document.getElementById("phoneStatusText").textContent="Identifying language...";
+    document.getElementById("phoneStatus").textContent="● Processing";
+    document.getElementById("mainMicBtn").classList.remove("recording");
+
+    const src_bubble=document.createElement("div");
+    src_bubble.className="p-bubble p-src"+(srcPending?" "+"p-pending":"");
+    src_bubble.innerHTML=`<span class="p-tag">${getLang(src)?.label} — original</span>${srcText}`;
+    document.getElementById("phoneContent").appendChild(src_bubble);
+  },1500);
+
+  setTimeout(()=>{
+    document.getElementById("phoneStatusText").textContent=tgtPending?"Unverified — not spoken aloud":"Speaking translation...";
+    document.getElementById("phoneStatus").textContent=tgtPending?"⚠️ Unverified":"● Speaking";
+
+    const tgt_bubble=document.createElement("div");
+    tgt_bubble.className="p-bubble p-tgt"+(tgtPending?" "+"p-pending":"");
+    tgt_bubble.innerHTML=`<span class="p-tag">${getLang(tgt)?.label} — translated</span>${tgtText}`;
+    if(tgtPending) tgt_bubble.style.cssText="background:#fff7ed;border:1.5px dashed rgba(217,142,41,0.4);color:#8B6914;";
+    document.getElementById("phoneContent").appendChild(tgt_bubble);
+
+    if(!tgtPending&&phrase.tts?.[tgt]) speak(phrase.tts[tgt],tgt);
+    else if(!tgtPending&&phrase.text[tgt]) speak(phrase.text[tgt],tgt);
+  },2800);
+
+  setTimeout(()=>{
+    document.getElementById("phoneStatusText").textContent="Done — tap another phrase";
+    document.getElementById("phoneStatus").textContent="● Offline ready";
+    micActive=false;
+  },4500);
+}
+document.getElementById("mainMicBtn").addEventListener("click",()=>{
+  if(!currentPhrase) { document.getElementById("phoneStatusText").textContent="Tap a phrase first →"; return; }
+  const p=PHRASES.find(ph=>ph.id===currentPhrase);
+  if(p) runMicDemo(p);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// SIGN LANGUAGE DEMO
+// ═══════════════════════════════════════════════════════════════
+const SIGN_WORDS = [
+  { word:"Jambo", meaning:"Hello / Greeting in KSL", poses:{ lf:[32,38,36,29,0], rf:[32,38,36,29,52] } },
+  { word:"Asante", meaning:"Thank you", poses:{ lf:[32,8,10,18,0], rf:[15,8,10,18,52] } },
+  { word:"Maji", meaning:"Water — two hands flow down", poses:{ lf:[15,15,36,29,0], rf:[15,15,36,29,40] } },
+  { word:"Hospitali", meaning:"Hospital — cross shape hands", poses:{ lf:[32,8,36,18,30], rf:[32,38,10,29,30] } },
+  { word:"Chakula", meaning:"Food — hand to mouth gesture", poses:{ lf:[32,38,10,18,0], rf:[32,8,10,29,52] } },
+];
+let signIdx=0;
+
+function updateSignDisplay(){
+  const s=SIGN_WORDS[signIdx];
+  document.getElementById("signWord").textContent=s.word;
+  document.getElementById("signWord").style.animation="none";
+  void document.getElementById("signWord").offsetWidth;
+  document.getElementById("signWord").style.animation="";
+  document.getElementById("signTranslation").textContent=s.meaning;
+  animateHands(s.poses);
+}
+
+function animateHands(poses){
+  const lfh=[15,8,36,29,0];
+  const fingers=["f1","f2","f3","f4","thumb"];
+  const lHeights=poses.lf||lfh;
+  const rHeights=poses.rf||lfh;
+  fingers.forEach((f,i)=>{
+    const lEl=document.getElementById("hl-"+f);
+    const rEl=document.getElementById("hr-"+f);
+    if(f==="thumb"){
+      if(lEl){ lEl.setAttribute("height",lHeights[i]||9); }
+      if(rEl){ rEl.setAttribute("height",rHeights[i]||9); }
+    } else {
+      if(lEl){ lEl.setAttribute("height",lHeights[i]||32); }
+      if(rEl){ rEl.setAttribute("height",rHeights[i]||32); }
+    }
+  });
+}
+
+document.getElementById("signNextBtn").addEventListener("click",()=>{ signIdx=(signIdx+1)%SIGN_WORDS.length; updateSignDisplay(); });
+document.getElementById("signPrevBtn").addEventListener("click",()=>{ signIdx=(signIdx-1+SIGN_WORDS.length)%SIGN_WORDS.length; updateSignDisplay(); });
+updateSignDisplay();
+setInterval(()=>{ signIdx=(signIdx+1)%SIGN_WORDS.length; updateSignDisplay(); },3500);
+
+// ═══════════════════════════════════════════════════════════════
+// SCROLL ANIMATIONS
+// ═══════════════════════════════════════════════════════════════
+const famObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.querySelectorAll(".fam-fill").forEach(el=>{ el.style.width=el.getAttribute("data-w")+"%"; });
+      famObs.disconnect();
+    }
+  });
+},{threshold:0.3});
+const famEl=document.getElementById("famBars");
+if(famEl) famObs.observe(famEl);
+
+// ═══════════════════════════════════════════════════════════════
+// ACTIVE NAV
+// ═══════════════════════════════════════════════════════════════
+const sections=document.querySelectorAll("section[id]");
+const navLinks=document.querySelectorAll("nav ul a");
+const navObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(a=>{ a.style.color=a.getAttribute("href")==="#"+e.target.id?"var(--ink)":""; });
+    }
+  });
+},{threshold:0.4});
+sections.forEach(s=>navObs.observe(s));
+</script>
+</body>
+</html>

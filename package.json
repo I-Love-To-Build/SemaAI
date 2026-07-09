@@ -1,0 +1,37 @@
+{
+  "name": "sema-contributor-platform",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "serve:local": "node scripts/start-local-next.mjs",
+    "check:prod": "node scripts/production-readiness-check.mjs",
+    "lint": "next lint",
+    "worker:audio-qa": "node scripts/audio-qa-worker.mjs",
+    "worker:import": "node scripts/corpus-import-worker.mjs",
+    "worker:export": "node scripts/export-worker.mjs",
+    "seed:corpus": "node scripts/seed-live-corpus.mjs",
+    "grant:role": "node scripts/grant-role.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.23.8"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.0.0",
+    "typescript": "^5.6.0"
+  }
+}
