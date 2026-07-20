@@ -1,6 +1,6 @@
 export type MonitorLevel = "info" | "warn" | "error";
 
-export function monitor(level: MonitorLevel, event: string, metadata: Record<string, unknown> = {}) {
+export async function monitor(level: MonitorLevel, event: string, metadata: Record<string, unknown> = {}) {
   const payload = {
     level,
     event,
@@ -10,13 +10,30 @@ export function monitor(level: MonitorLevel, event: string, metadata: Record<str
 
   if (level === "error") {
     console.error(JSON.stringify(payload));
-    return;
-  }
-
-  if (level === "warn") {
+  } else if (level === "warn") {
     console.warn(JSON.stringify(payload));
-    return;
+  } else {
+    console.log(JSON.stringify(payload));
   }
 
-  console.log(JSON.stringify(payload));
+  const webhookUrl = process.env.SEMA_ALERT_WEBHOOK_URL;
+  if (webhookUrl && level !== "info") {
+    try {
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          text: `[Sema AI] ${level.toUpperCase()}: ${event}`,
+          ...payload
+        })
+      });
+    } catch (error) {
+      console.error(JSON.stringify({
+        level: "error",
+        event: "alert_webhook_failed",
+        metadata: { message: error instanceof Error ? error.message : "Unknown webhook error" },
+        timestamp: new Date().toISOString()
+      }));
+    }
+  }
 }

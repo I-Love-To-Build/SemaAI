@@ -79,15 +79,18 @@ const swahiliConcepts = [
 function makeRows(languageCode, conceptList, count, importId) {
   const domainNames = Object.keys(domains);
   const rows = [];
+  const wards = ["A", "B", "C", "D", "E", "F", "G", "H"];
   for (let index = 0; index < count; index += 1) {
     const domain = domainNames[index % domainNames.length];
     const templates = domains[domain];
     const template = templates[Math.floor(index / domainNames.length) % templates.length];
     const concept = conceptList[index % conceptList.length];
+    const ward = wards[index % wards.length];
+    const cycle = Math.floor(index / (domainNames.length * templates.length * conceptList.length)) + 1;
     rows.push({
       import_id: importId,
       language_code: languageCode,
-      text: template.replace("{need}", concept),
+      text: `${template.replace("{need}", concept)} This is community case ${cycle} in ward ${ward}. Reference ${String(index + 1).padStart(5, "0")}.`,
       domain,
       license: "Sema pilot generated source - replace with licensed corpus for production release",
       difficulty: index % 11 === 0 ? "advanced" : index % 5 === 0 ? "intermediate" : "beginner",
@@ -122,16 +125,17 @@ const rows = [
   ...makeRows("en", concepts, targetPerSourceLanguage, importRow.id),
   ...makeRows("sw", swahiliConcepts, targetPerSourceLanguage, importRow.id)
 ];
+const dedupedRows = [...new Map(rows.map((row) => [`${row.language_code}:${row.text.toLowerCase().trim()}`, row])).values()];
 
-for (let start = 0; start < rows.length; start += 1000) {
-  const batch = rows.slice(start, start + 1000);
+for (let start = 0; start < dedupedRows.length; start += 1000) {
+  const batch = dedupedRows.slice(start, start + 1000);
   const { error } = await supabase.from("corpus_items").upsert(batch, {
     onConflict: "language_code,hash",
     ignoreDuplicates: false
   });
   if (error) throw error;
-  console.log(`Seeded ${Math.min(start + batch.length, rows.length)} / ${rows.length}`);
+  console.log(`Seeded ${Math.min(start + batch.length, dedupedRows.length)} / ${dedupedRows.length}`);
 }
 
 await supabase.from("corpus_imports").update({ status: "processed" }).eq("id", importRow.id);
-console.log(`Seeded ${rows.length} pilot corpus items across English and Kiswahili sources.`);
+console.log(`Seeded ${dedupedRows.length} pilot corpus items across English and Kiswahili sources.`);

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   const parsed = await parseJson(request, monitoringEventSchema);
   if (!parsed.ok) return parsed.response;
 
-  monitor(parsed.data.level, parsed.data.event, {
+  await monitor(parsed.data.level, parsed.data.event, {
     ...parsed.data.metadata,
     userId: auth.user.id
   });
