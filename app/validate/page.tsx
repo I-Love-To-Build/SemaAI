@@ -1,6 +1,5 @@
-import ContributorApp from "@/app/contributor-app";
-import { LANGUAGES } from "@/lib/languages";
+import { redirect } from "next/navigation";
 
 export default function ValidatePage() {
-  return <ContributorApp languages={LANGUAGES} initialView="validate" />;
+  redirect("/reviewer");
 }

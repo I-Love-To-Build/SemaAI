@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { jsonError, requireUser } from "@/lib/api";
+import { refreshContributorReputation } from "@/lib/metrics";
 
 function corpusText(value: unknown) {
   if (Array.isArray(value)) {
@@ -9,15 +10,34 @@ function corpusText(value: unknown) {
   return (value as { text?: string } | null)?.text;
 }
 
+function nairobiDayStartIso() {
+  const offsetMs = 3 * 60 * 60 * 1000;
+  const now = new Date();
+  const nairobiNow = new Date(now.getTime() + offsetMs);
+  const nairobiMidnightUtc = Date.UTC(
+    nairobiNow.getUTCFullYear(),
+    nairobiNow.getUTCMonth(),
+    nairobiNow.getUTCDate()
+  );
+  return new Date(nairobiMidnightUtc - offsetMs).toISOString();
+}
+
 export async function GET(request: Request) {
   const auth = await requireUser(request);
   if (!auth.ok) return auth.response;
 
   const userId = auth.user.id;
+  const todayIso = nairobiDayStartIso();
   const [
     translations,
     recordings,
     transcriptions,
+    translationCount,
+    recordingCount,
+    transcriptionCount,
+    todayTranslations,
+    todayRecordings,
+    todayTranscriptions,
     claims,
     rewards,
     roles
@@ -41,6 +61,33 @@ export async function GET(request: Request) {
       .order("created_at", { ascending: false })
       .limit(20),
     auth.supabase
+      .from("translations")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId),
+    auth.supabase
+      .from("recordings")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId),
+    auth.supabase
+      .from("transcriptions")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId),
+    auth.supabase
+      .from("translations")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId)
+      .gte("created_at", todayIso),
+    auth.supabase
+      .from("recordings")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId)
+      .gte("created_at", todayIso),
+    auth.supabase
+      .from("transcriptions")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId)
+      .gte("created_at", todayIso),
+    auth.supabase
       .from("task_claims")
       .select("id,status,expires_at")
       .eq("contributor_id", userId)
@@ -59,6 +106,12 @@ export async function GET(request: Request) {
     translations.error,
     recordings.error,
     transcriptions.error,
+    translationCount.error,
+    recordingCount.error,
+    transcriptionCount.error,
+    todayTranslations.error,
+    todayRecordings.error,
+    todayTranscriptions.error,
     claims.error,
     rewards.error,
     roles.error
@@ -104,9 +157,17 @@ export async function GET(request: Request) {
     .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
     .slice(0, 12);
 
+  let reputation = null;
+  try {
+    reputation = await refreshContributorReputation(auth.supabase, userId);
+  } catch {
+    reputation = null;
+  }
+
   return NextResponse.json({
     stats: {
-      total: allStatuses.length,
+      total: (translationCount.count ?? 0) + (recordingCount.count ?? 0) + (transcriptionCount.count ?? 0),
+      today: (todayTranslations.count ?? 0) + (todayRecordings.count ?? 0) + (todayTranscriptions.count ?? 0),
       approved,
       pending,
       rejected,
@@ -115,6 +176,7 @@ export async function GET(request: Request) {
       points: (rewards.data ?? []).reduce((total, item) => total + item.points, 0)
     },
     roles: roles.data ?? [],
-    recent
+    recent,
+    reputation
   });
 }

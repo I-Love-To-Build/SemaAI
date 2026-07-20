@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await auth.supabase
     .from("profiles")
-    .select("id,display_name,home_language_code,county,reviewer_score,created_at,updated_at,user_roles(role,language_code)")
+    .select("id,display_name,home_language_code,county,reviewer_score,created_at,updated_at,user_roles(role,language_code),consent_records(id,signed_at),speaker_profiles(id,language_code,created_at)")
     .eq("id", auth.user.id)
     .single();
 

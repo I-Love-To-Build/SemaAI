@@ -8,7 +8,8 @@ const extensionByType: Record<string, string> = {
   "audio/webm": "webm",
   "audio/wav": "wav",
   "audio/mpeg": "mp3",
-  "audio/mp4": "m4a"
+  "audio/mp4": "m4a",
+  "audio/ogg": "ogg"
 };
 
 export async function POST(request: Request) {

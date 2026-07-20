@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auditEvent, checkRateLimit, jsonError, parseJson, requireUser } from "@/lib/api";
 import { recordingSchema } from "@/lib/contracts";
+import { validateRecordingQuality } from "@/lib/quality";
 
 export async function POST(request: Request) {
   const limited = checkRateLimit(request, "recordings");
@@ -11,6 +12,19 @@ export async function POST(request: Request) {
 
   const parsed = await parseJson(request, recordingSchema);
   if (!parsed.ok) return parsed.response;
+
+  const quality = validateRecordingQuality({
+    durationMs: parsed.data.durationMs,
+    sampleRate: parsed.data.sampleRate,
+    qa: parsed.data.qa
+  });
+
+  if (!quality.ok) {
+    return jsonError("Recording did not pass the automatic audio quality gate.", 422, {
+      score: quality.score,
+      reasons: quality.reasons
+    });
+  }
 
   const { data, error } = await auth.supabase
     .from("recordings")
@@ -25,8 +39,8 @@ export async function POST(request: Request) {
       environment: parsed.data.environment,
       speaker_profile_id: parsed.data.speakerProfileId ?? null,
       consent_record_id: parsed.data.consentRecordId,
-      qa: parsed.data.qa,
-      status: parsed.data.qa.autoPass ? "peer_review" : "needs_revision"
+      qa: { ...parsed.data.qa, score: quality.score, reasons: quality.reasons, autoPass: quality.status === "peer_review" },
+      status: quality.status
     })
     .select("id,status")
     .single();
@@ -44,7 +58,9 @@ export async function POST(request: Request) {
 
   await auditEvent(auth.user.id, "recording_submitted", "recording", data.id, {
     languageCode: parsed.data.languageCode,
-    durationMs: parsed.data.durationMs
+    durationMs: parsed.data.durationMs,
+    qualityScore: quality.score,
+    qualityReasons: quality.reasons
   });
 
   return NextResponse.json(data, { status: 201 });

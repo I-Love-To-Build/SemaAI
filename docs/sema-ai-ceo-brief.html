@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sema AI Research Proposal</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 17mm;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f4f6f2;
+        color: #101522;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.45;
+      }
+
+      .page {
+        background: #fff;
+        border: 1px solid #dbe2db;
+        border-radius: 18px;
+        overflow: hidden;
+      }
+
+      .hero {
+        padding: 34px 38px 30px;
+        color: #fff;
+        background:
+          linear-gradient(115deg, rgba(8, 12, 20, 0.95), rgba(4, 92, 46, 0.87)),
+          radial-gradient(circle at 86% 18%, rgba(245, 169, 39, 0.36), transparent 28%),
+          linear-gradient(90deg, #06080c, #0b6b38);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .brand img {
+        width: 150px;
+        height: auto;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.96);
+      }
+
+      .eyebrow {
+        color: #f5a927;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 820px;
+        font-size: 42px;
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      .hero p {
+        max-width: 800px;
+        margin: 18px 0 0;
+        color: rgba(255, 255, 255, 0.86);
+        font-size: 16px;
+      }
+
+      .content {
+        padding: 30px 38px 38px;
+      }
+
+      .abstract {
+        margin: 0 0 24px;
+        padding: 20px 22px;
+        border-left: 6px solid #0a7a3d;
+        border-radius: 12px;
+        background: #eef8f0;
+        font-size: 15px;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 18px 0 24px;
+      }
+
+      .metrics div {
+        min-height: 108px;
+        padding: 16px;
+        border-radius: 12px;
+        background: #101522;
+        color: #fff;
+      }
+
+      .metrics strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #f5a927;
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      .metrics span {
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 13px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin: 18px 0;
+      }
+
+      .card {
+        padding: 18px;
+        border: 1px solid #dbe2db;
+        border-radius: 12px;
+        background: #fff;
+      }
+
+      h2 {
+        margin: 22px 0 10px;
+        font-size: 22px;
+        line-height: 1.15;
+      }
+
+      h3 {
+        margin: 0 0 8px;
+        color: #0a5f32;
+        font-size: 14px;
+        line-height: 1.2;
+        text-transform: uppercase;
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      ul {
+        margin: 8px 0 0;
+        padding-left: 18px;
+      }
+
+      li {
+        margin: 5px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0 20px;
+        font-size: 13px;
+      }
+
+      th,
+      td {
+        padding: 9px 10px;
+        border-bottom: 1px solid #e3e8e2;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: #0a5f32;
+        background: #f4f8f4;
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+
+      .statement {
+        margin: 22px 0;
+        padding: 20px;
+        border-radius: 14px;
+        color: #fff;
+        background: linear-gradient(105deg, #b71918, #0a7a3d);
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .references {
+        margin-top: 22px;
+        padding-top: 16px;
+        border-top: 1px solid #dbe2db;
+        color: #4c5b70;
+        font-size: 11px;
+      }
+
+      .references a {
+        color: #0a5f32;
+        text-decoration: none;
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+
+        .page {
+          border: 0;
+          border-radius: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="brand">
+          <img src="../public/sema-ai-brand.png" alt="Sema AI logo" />
+          <div>
+            <div class="eyebrow">Research Proposal</div>
+            <div>Prepared July 2026</div>
+          </div>
+        </div>
+        <h1>Building Kenyan language data infrastructure for inclusive artificial intelligence.</h1>
+        <p>
+          A proposal for a contributor-driven platform that collects, verifies, and exports Kenyan language text,
+          translation, transcription, and speech datasets for public service, enterprise, education, health, and
+          AI model development.
+        </p>
+      </section>
+
+      <section class="content">
+        <div class="abstract">
+          <strong>Abstract.</strong> Kenya is multilingual, yet most digital and AI systems are designed around
+          English or broad Kiswahili coverage. This creates a language access gap for communities whose daily
+          communication depends on indigenous Kenyan languages and regional varieties. Sema AI proposes a
+          production-grade contributor platform for creating high-quality, consented, reviewed, and export-ready
+          language datasets across Kenya's languages. The platform supports source corpus collection, translation,
+          audio recording, transcription, community review, expert validation, metadata management, and dataset
+          governance.
+        </div>
+
+        <div class="metrics">
+          <div>
+            <strong>68+</strong>
+            <span>Languages are reported in Kenya, reflecting Bantu, Nilotic, Cushitic, Semitic, and other communities.</span>
+          </div>
+          <div>
+            <strong>80-90%+</strong>
+            <span>Potential population benefit when local language access is added to public and private digital services.</span>
+          </div>
+          <div>
+            <strong>Few</strong>
+            <span>Current large public datasets cover only a small subset of Kenyan languages and domains.</span>
+          </div>
+        </div>
+
+        <h2>1. Background and Rationale</h2>
+        <p>
+          Language is a basic access layer for technology. In Kenya, English is widely used in government,
+          education, commerce, and formal systems, while Kiswahili serves as a national lingua franca. However,
+          many people continue to communicate most naturally in mother tongues, regional varieties, Sheng, and
+          community-specific dialects. When AI tools, speech systems, chatbots, search interfaces, and public-service
+          platforms do not support these languages, users are forced to adapt to technology instead of technology
+          adapting to them.
+        </p>
+        <p>
+          The opportunity is therefore not only translation. It is the creation of a trusted national language data
+          layer: words, phrases, sentences, domain terminology, validated translations, audio samples, transcriptions,
+          speaker metadata, consent records, review decisions, and export pipelines that can support downstream AI
+          systems.
+        </p>
+
+        <h2>2. Problem Statement</h2>
+        <p>
+          Kenyan languages remain underrepresented in digital language resources. This limits the accuracy and
+          usefulness of machine translation, automatic speech recognition, text-to-speech, educational tools,
+          health information systems, public-service chatbots, customer support automation, and local language AI
+          assistants.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3>Data Scarcity</h3>
+            <p>Many Kenyan languages lack large, structured, reviewed, and machine-readable corpora.</p>
+          </div>
+          <div class="card">
+            <h3>Quality Control</h3>
+            <p>Useful AI datasets need contributor identity, consent, task tracking, review, escalation, and audit trails.</p>
+          </div>
+          <div class="card">
+            <h3>Speech Gap</h3>
+            <p>Voice systems require diverse audio across regions, genders, age groups, devices, and speaking styles.</p>
+          </div>
+          <div class="card">
+            <h3>Domain Coverage</h3>
+            <p>Health, agriculture, finance, education, law, emergency services, and government each need terminology coverage.</p>
+          </div>
+        </div>
+
+        <h2>3. Literature Review</h2>
+        <p>
+          Recent research confirms that Kenyan NLP is advancing, but remains constrained by limited resources for
+          indigenous languages. The 2024 survey <em>State of NLP in Kenya</em> identifies dataset creation, machine
+          translation, speech recognition, information retrieval, and sentiment analysis as active areas, while also
+          noting that most indigenous languages remain digitally underrepresented.
+        </p>
+        <p>
+          The Kencorpus project demonstrates the value of structured language data. It created text and speech
+          resources for Swahili, Dholuo, and Luhya, including approximately 5.6 million words and 177 hours of speech.
+          It also produced translation and question-answer resources for downstream NLP tasks. This proves both the
+          feasibility and importance of Kenyan language corpus development, while also showing that coverage remains
+          limited to a small number of languages.
+        </p>
+        <p>
+          AfriVoices-KE extends this work into multilingual speech. The dataset includes approximately 3,000 hours of
+          audio across Dholuo, Kikuyu, Kalenjin, Maasai, and Somali, collected from thousands of native speakers. Its
+          methodology highlights practices that Sema AI should adopt: contributor training, regional diversity,
+          mobile recording, scripted and spontaneous prompts, automated quality checks, and human review.
+        </p>
+        <p>
+          Broader research on dialect-aware NLP also shows that models trained on dominant language varieties often
+          perform worse on dialectal and underrepresented varieties. This is directly relevant to Kenya, where a
+          single language label may contain many regional varieties and dialects. A successful Kenyan language data
+          platform must therefore capture language, dialect, region, speaker metadata, and task context.
+        </p>
+
+        <h2>4. Proposed Solution</h2>
+        <p>
+          Sema AI proposes a contributor platform and operations system for building verified Kenyan language data at
+          scale. Contributors complete onboarding, select their strongest language, choose whether they understand
+          English or Kiswahili source material, claim tasks, submit translations or recordings, and participate in
+          validation workflows. Reviewers and language leads approve, reject, request changes, or escalate submissions.
+        </p>
+        <ul>
+          <li><strong>Corpus bank:</strong> words, phrases, sentences, idioms, proverbs, domain terms, and dialogue prompts.</li>
+          <li><strong>Translation workflow:</strong> source item, target language, dialect notes, confidence, reviewer decisions.</li>
+          <li><strong>Audio workflow:</strong> recording prompts, browser upload, metadata, playback, audio QA, and approval.</li>
+          <li><strong>Review workflow:</strong> community review, expert review, language lead decisions, audit logs.</li>
+          <li><strong>Admin operations:</strong> corpus imports, contributor oversight, recordings, translations, exports, and quality metrics.</li>
+          <li><strong>Dataset export:</strong> approved-only train/dev/test splits with metadata, consent, licensing, and provenance.</li>
+        </ul>
+
+        <h2>5. Beneficiaries and Expected Impact</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Beneficiary</th>
+              <th>How Sema AI Helps</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Citizens</td><td>Access health, education, civic, and business information in familiar languages.</td></tr>
+            <tr><td>Public institutions</td><td>Deploy multilingual digital services, helplines, and information systems.</td></tr>
+            <tr><td>Healthcare providers</td><td>Improve patient communication, symptom capture, triage, and translation support.</td></tr>
+            <tr><td>Schools and learners</td><td>Support local-language explanations, literacy, and culturally relevant learning content.</td></tr>
+            <tr><td>Enterprises and NGOs</td><td>Build better customer support, surveys, field operations, and outreach tools.</td></tr>
+            <tr><td>AI researchers and builders</td><td>Access reviewed, consented, structured Kenyan language datasets for model development.</td></tr>
+          </tbody>
+        </table>
+
+        <h2>6. Research and Implementation Questions</h2>
+        <ul>
+          <li>Which Kenyan languages and domains should be prioritized first for maximum social and economic impact?</li>
+          <li>How can contributor verification, consent, and quality review be designed without excluding rural users?</li>
+          <li>What level of translation, audio, and transcription coverage is required before a language becomes useful for AI systems?</li>
+          <li>How should dialect, region, speaker demographics, and code-switching be represented in dataset metadata?</li>
+          <li>What governance model ensures community ownership, ethical data use, privacy, and long-term sustainability?</li>
+        </ul>
+
+        <h2>7. Proposed Success Metrics</h2>
+        <ul>
+          <li>Number of active languages with verified corpus, translation, and audio coverage.</li>
+          <li>Number of approved words, phrases, sentences, domain terms, recordings, and transcriptions.</li>
+          <li>Reviewer agreement rate, rejection rate, revision rate, and time to approval.</li>
+          <li>Speaker diversity across region, gender, age group, device type, and dialect.</li>
+          <li>Dataset export readiness for machine translation, ASR, TTS, search, and assistant applications.</li>
+        </ul>
+
+        <div class="statement">
+          Core proposal: Sema AI should be developed as Kenya's contributor-driven language data and voice
+          infrastructure platform for inclusive artificial intelligence.
+        </div>
+
+        <h2>8. Conclusion</h2>
+        <p>
+          The evidence suggests that Kenyan language technology is both necessary and under-resourced. Existing
+          projects show that corpus and speech collection are feasible, but current coverage does not yet match
+          Kenya's linguistic diversity. Sema AI can fill this gap by combining contributor participation, rigorous
+          review workflows, audio collection, metadata governance, and export-ready datasets. The result is a platform
+          that supports inclusion, local innovation, public-service access, and future AI systems that sound and read
+          like Kenya.
+        </p>
+
+        <div class="references">
+          <strong>References:</strong>
+          Amol et al. (2024), State of NLP in Kenya: A Survey, https://arxiv.org/abs/2410.09948 ·
+          Wanjawa et al. (2022), Kencorpus: A Kenyan Language Corpus of Swahili, Dholuo and Luhya, https://arxiv.org/abs/2208.12081 ·
+          Wanzare et al. (2026), AfriVoices-KE: A Multilingual Speech Dataset for Kenyan Languages, https://arxiv.org/abs/2604.08448 ·
+          Languages of Kenya, https://en.wikipedia.org/wiki/Languages_of_Kenya ·
+          Demographics of Kenya, https://en.wikipedia.org/wiki/Demographics_of_Kenya ·
+          Joshi et al. (2024), Natural Language Processing for Dialects of a Language: A Survey, https://arxiv.org/abs/2401.05632
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

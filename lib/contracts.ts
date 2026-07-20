@@ -51,7 +51,7 @@ export const taskClaimSchema = z.object({
 export const signedUploadSchema = z.object({
   languageCode: z.string().min(2),
   corpusItemId: z.string().uuid(),
-  contentType: z.enum(["audio/webm", "audio/wav", "audio/mpeg", "audio/mp4"]),
+  contentType: z.enum(["audio/webm", "audio/wav", "audio/mpeg", "audio/mp4", "audio/ogg"]),
   byteSize: z.number().int().min(1000).max(50 * 1024 * 1024)
 });
 

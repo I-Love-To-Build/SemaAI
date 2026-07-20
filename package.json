@@ -13,8 +13,15 @@
     "worker:audio-qa": "node scripts/audio-qa-worker.mjs",
     "worker:import": "node scripts/corpus-import-worker.mjs",
     "worker:export": "node scripts/export-worker.mjs",
+    "worker:model-release": "node scripts/model-release-worker.mjs",
     "seed:corpus": "node scripts/seed-live-corpus.mjs",
-    "grant:role": "node scripts/grant-role.mjs"
+    "import:kaikki": "node scripts/import-kaikki-corpus.mjs",
+    "load:test": "node scripts/load-test.mjs",
+    "grant:role": "node scripts/grant-role.mjs",
+    "migrate:client-platform": "node scripts/apply-client-platform-migration.mjs",
+    "migrate:production-features": "node scripts/apply-supabase-sql.mjs --file=supabase/production_features_migration.sql",
+    "migrate:quality": "node scripts/apply-supabase-sql.mjs --file=supabase/quality_hardening_migration.sql",
+    "create:client-key": "node scripts/create-client-api-key.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
