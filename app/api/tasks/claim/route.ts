@@ -21,7 +21,7 @@ type CandidateTask = {
 };
 
 const claimableCorpusStatusFilter = "status.eq.draft,status.eq.approved,status.eq.needs_revision";
-const unavailableTranslationStatusFilter = "status.eq.submitted,status.eq.peer_review,status.eq.expert_review,status.eq.approved,status.eq.exported";
+const unavailableContributionStatusFilter = "status.eq.submitted,status.eq.peer_review,status.eq.expert_review,status.eq.approved,status.eq.exported";
 
 export async function POST(request: Request) {
   const limited = checkRateLimit(request, "task-claim");
@@ -65,13 +65,15 @@ export async function POST(request: Request) {
     .eq("status", "claimed")
     .lt("expires_at", nowIso);
 
-  await auth.supabase
-    .from("task_claims")
-    .update({ status: "released" })
-    .eq("contributor_id", auth.user.id)
-    .eq("task_type", parsed.data.taskType)
-    .eq("status", "claimed")
-    .gt("expires_at", nowIso);
+  if (parsed.data.refresh) {
+    await auth.supabase
+      .from("task_claims")
+      .update({ status: "released" })
+      .eq("contributor_id", auth.user.id)
+      .eq("task_type", parsed.data.taskType)
+      .eq("status", "claimed")
+      .gt("expires_at", nowIso);
+  }
 
   let unavailableIds: string[] = [];
   if (parsed.data.taskType === "translation") {
@@ -80,17 +82,41 @@ export async function POST(request: Request) {
       .select("corpus_item_id")
       .eq("contributor_id", auth.user.id)
       .eq("language_code", parsed.data.languageCode)
-      .or(unavailableTranslationStatusFilter)
+      .or(unavailableContributionStatusFilter)
       .limit(20000);
 
     if (completed.error) return jsonError(completed.error.message, 500);
-    unavailableIds = [
-      ...new Set([
-        ...(completed.data ?? []).map((item) => item.corpus_item_id).filter(Boolean)
-      ])
-    ];
+    unavailableIds.push(...(completed.data ?? []).map((item) => item.corpus_item_id).filter(Boolean));
   }
 
+  if (parsed.data.taskType === "recording") {
+    const completed = await auth.supabase
+      .from("recordings")
+      .select("corpus_item_id")
+      .eq("contributor_id", auth.user.id)
+      .eq("language_code", parsed.data.languageCode)
+      .or(unavailableContributionStatusFilter)
+      .limit(20000);
+
+    if (completed.error) return jsonError(completed.error.message, 500);
+    unavailableIds.push(...(completed.data ?? []).map((item) => item.corpus_item_id).filter(Boolean));
+  }
+
+  const activeClaims = await auth.supabase
+    .from("task_claims")
+    .select("corpus_item_id")
+    .eq("contributor_id", auth.user.id)
+    .eq("task_type", parsed.data.taskType)
+    .eq("status", "claimed")
+    .gt("expires_at", nowIso)
+    .limit(1000);
+
+  if (activeClaims.error) return jsonError(activeClaims.error.message, 500);
+  if (!parsed.data.refresh) {
+    unavailableIds.push(...(activeClaims.data ?? []).map((item) => item.corpus_item_id).filter(Boolean));
+  }
+
+  unavailableIds = [...new Set(unavailableIds)];
   const unavailable = new Set(unavailableIds);
   const tasks: CandidateTask[] = [];
   const batchSize = 250;
@@ -160,6 +186,7 @@ export async function POST(request: Request) {
       languageCode: parsed.data.languageCode,
       domain: parsed.data.domain ?? null,
       unavailableCount: unavailableIds.length,
+      activeClaimCount: activeClaims.data?.length ?? 0,
       expiresAt
     }
   });

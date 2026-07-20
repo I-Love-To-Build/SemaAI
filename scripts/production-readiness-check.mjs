@@ -5,7 +5,19 @@ const requiredFiles = [
   "app/api/dashboard/route.ts",
   "app/api/admin/overview/route.ts",
   "app/api/vocabulary/route.ts",
+  "app/api/missions/route.ts",
+  "app/api/language-metrics/route.ts",
+  "app/api/provenance/route.ts",
+  "app/api/reputation/route.ts",
+  "app/api/client/translate/route.ts",
+  "app/api/client/transcribe/route.ts",
+  "app/api/client/voice/route.ts",
   "app/admin/admin-portal.tsx",
+  "app/reviewer/reviewer-portal.tsx",
+  "app/clients/page.tsx",
+  "app/intelligence/page.tsx",
+  "app/missions/page.tsx",
+  "app/governance/page.tsx",
   "app/contribute/page.tsx",
   "app/vocabulary/page.tsx",
   "app/validate/page.tsx",
@@ -33,8 +45,14 @@ const requiredFiles = [
   "scripts/audio-qa-worker.mjs",
   "scripts/corpus-import-worker.mjs",
   "scripts/export-worker.mjs",
+  "scripts/model-release-worker.mjs",
+  "scripts/apply-production-migrations.mjs",
+  "scripts/seed-pilot-corpus.mjs",
+  "scripts/load-test.mjs",
   "scripts/seed-live-corpus.mjs",
   "vercel.json",
+  "docs/PRODUCTION_READINESS.md",
+  "docs/GITHUB_COLLABORATION.md",
   "docs/USER_TESTING.md"
 ];
 
@@ -69,7 +87,16 @@ for (const word of forbiddenPortalWords) {
 const schema = readFileSync("supabase/schema.sql", "utf8");
 for (const requiredSql of [
   "create table task_claims",
+  "create table missions",
+  "create table contributor_reputation",
+  "create table language_metrics",
+  "create table training_jobs",
+  "create table client_api_keys",
+  "create table model_releases",
   "alter table task_claims enable row level security",
+  "alter table missions enable row level security",
+  "alter table contributor_reputation enable row level security",
+  "alter table language_metrics enable row level security",
   "contributors upload own recordings",
   "contributors create own profile",
   "reviewers create reviews",
@@ -110,6 +137,32 @@ for (const requiredAuthCapability of [
 ]) {
   if (!contributorApp.includes(requiredAuthCapability)) {
     failures.push(`Authentication experience missing: ${requiredAuthCapability}`);
+  }
+}
+
+const taskClaimRoute = readFileSync("app/api/tasks/claim/route.ts", "utf8");
+for (const requiredTaskGuard of [
+  "activeClaims",
+  "unavailableContributionStatusFilter",
+  "parsed.data.refresh",
+  "recordings"
+]) {
+  if (!taskClaimRoute.includes(requiredTaskGuard)) {
+    failures.push(`Task refill/no-repeat guard missing: ${requiredTaskGuard}`);
+  }
+}
+
+const adminPortal = readFileSync("app/admin/admin-portal.tsx", "utf8");
+for (const requiredAdminSurface of ["Mission controls", "Governance and trust", "Refresh language metrics"]) {
+  if (!adminPortal.includes(requiredAdminSurface)) {
+    failures.push(`Admin control missing: ${requiredAdminSurface}`);
+  }
+}
+
+const packageJson = readFileSync("package.json", "utf8");
+for (const requiredScript of ["migrate:all", "seed:pilot-corpus", "worker:model-release", "load:test"]) {
+  if (!packageJson.includes(requiredScript)) {
+    failures.push(`package.json missing script: ${requiredScript}`);
   }
 }
 

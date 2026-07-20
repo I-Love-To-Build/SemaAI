@@ -45,6 +45,7 @@ export const taskClaimSchema = z.object({
   sourceLanguageCode: z.enum(["en", "sw"]).default("en"),
   taskType: z.enum(["translation", "recording", "transcription", "review"]),
   domain: z.enum(corpusDomains).optional(),
+  refresh: z.boolean().default(false),
   limit: z.number().int().min(1).max(25).default(10)
 });
 
