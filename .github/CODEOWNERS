@@ -1,0 +1,12 @@
+# Default owner for repository changes.
+* @joramchikamai2001-jpg
+
+# Extra-sensitive areas should always be reviewed by the owner until maintainers are assigned.
+/supabase/ @joramchikamai2001-jpg
+/app/api/ @joramchikamai2001-jpg
+/lib/supabase.ts @joramchikamai2001-jpg
+/lib/api.ts @joramchikamai2001-jpg
+/lib/quality.ts @joramchikamai2001-jpg
+/lib/metrics.ts @joramchikamai2001-jpg
+/scripts/ @joramchikamai2001-jpg
+/.github/ @joramchikamai2001-jpg

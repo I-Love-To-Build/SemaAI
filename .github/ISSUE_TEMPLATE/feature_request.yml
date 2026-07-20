@@ -1,0 +1,46 @@
+name: Feature request
+description: Suggest a product, platform, data, or workflow improvement.
+title: "[Feature]: "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user or operational problem does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the feature.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Contributor portal
+        - Reviewer portal
+        - Admin portal
+        - Client services
+        - Corpus/data
+        - Audio/STT/TTS
+        - Translation
+        - Governance/reputation
+        - Production operations
+        - Funding/investor materials
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: "This is done when..."
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks or data concerns
+      description: Mention consent, privacy, review, language community, or model quality risks.

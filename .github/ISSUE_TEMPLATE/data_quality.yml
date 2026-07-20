@@ -1,0 +1,40 @@
+name: Data quality issue
+description: Report a corpus, translation, audio, review, consent, or provenance concern.
+title: "[Data Quality]: "
+labels: ["data", "quality"]
+body:
+  - type: dropdown
+    id: data-type
+    attributes:
+      label: Data type
+      options:
+        - Source corpus
+        - Translation
+        - Recording
+        - Transcription
+        - Review decision
+        - Consent/provenance
+        - Model output
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Language or dialect
+      placeholder: Kiswahili, Giriama, Pokomo, etc.
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is wrong?
+      description: Be specific. Do not paste private personal data.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Suggested correction
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Region, dialect, domain, source, or review context if relevant.

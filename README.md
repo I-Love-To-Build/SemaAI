@@ -29,6 +29,26 @@ The old single-file prototype is still available at `sema_contributor_portal (2)
 
 5. Open `http://localhost:3000`.
 
+## Collaboration
+
+Developers should not push directly to `main`. Use feature branches and pull requests.
+
+- Read `CONTRIBUTING.md` before opening a PR.
+- Use the GitHub issue templates for bugs, feature requests, and data-quality concerns.
+- Use `docs/GITHUB_COLLABORATION.md` to invite collaborators, protect `main`, and configure repo rules.
+- CODEOWNERS is configured in `.github/CODEOWNERS` so sensitive areas get owner review.
+
+Recommended flow:
+
+```bash
+git checkout -b feature/my-change
+npm run build
+npm run check:prod
+git push origin feature/my-change
+```
+
+Then open a pull request into `main`.
+
 ## Production Checklist
 
 - Connect Supabase Auth and role assignment.
