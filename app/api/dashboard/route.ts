@@ -40,7 +40,13 @@ export async function GET(request: Request) {
     todayTranscriptions,
     claims,
     rewards,
-    roles
+    roles,
+    approvedTranslations,
+    approvedRecordings,
+    approvedTranscriptions,
+    rejectedTranslations,
+    rejectedRecordings,
+    rejectedTranscriptions
   ] = await Promise.all([
     auth.supabase
       .from("translations")
@@ -99,7 +105,37 @@ export async function GET(request: Request) {
     auth.supabase
       .from("user_roles")
       .select("role,language_code")
-      .eq("user_id", userId)
+      .eq("user_id", userId),
+    auth.supabase
+      .from("translations")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId)
+      .eq("status", "approved"),
+    auth.supabase
+      .from("recordings")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId)
+      .eq("status", "approved"),
+    auth.supabase
+      .from("transcriptions")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId)
+      .eq("status", "approved"),
+    auth.supabase
+      .from("translations")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId)
+      .in("status", ["rejected", "needs_revision"]),
+    auth.supabase
+      .from("recordings")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId)
+      .in("status", ["rejected", "needs_revision"]),
+    auth.supabase
+      .from("transcriptions")
+      .select("*", { count: "exact", head: true })
+      .eq("contributor_id", userId)
+      .in("status", ["rejected", "needs_revision"])
   ]);
 
   const firstError = [
@@ -114,7 +150,13 @@ export async function GET(request: Request) {
     todayTranscriptions.error,
     claims.error,
     rewards.error,
-    roles.error
+    roles.error,
+    approvedTranslations.error,
+    approvedRecordings.error,
+    approvedTranscriptions.error,
+    rejectedTranslations.error,
+    rejectedRecordings.error,
+    rejectedTranscriptions.error
   ].find(Boolean);
 
   if (firstError) return jsonError(firstError.message, 500);
@@ -122,14 +164,10 @@ export async function GET(request: Request) {
   const translationRows = translations.data ?? [];
   const recordingRows = recordings.data ?? [];
   const transcriptionRows = transcriptions.data ?? [];
-  const allStatuses = [
-    ...translationRows.map((item) => item.status),
-    ...recordingRows.map((item) => item.status),
-    ...transcriptionRows.map((item) => item.status)
-  ];
-  const approved = allStatuses.filter((status) => status === "approved").length;
-  const rejected = allStatuses.filter((status) => status === "rejected").length;
-  const pending = allStatuses.length - approved - rejected;
+  const totalCount = (translationCount.count ?? 0) + (recordingCount.count ?? 0) + (transcriptionCount.count ?? 0);
+  const approved = (approvedTranslations.count ?? 0) + (approvedRecordings.count ?? 0) + (approvedTranscriptions.count ?? 0);
+  const rejected = (rejectedTranslations.count ?? 0) + (rejectedRecordings.count ?? 0) + (rejectedTranscriptions.count ?? 0);
+  const pending = Math.max(0, totalCount - approved - rejected);
   const audioSeconds = Math.round(
     recordingRows.reduce((total, item) => total + (item.duration_ms ?? 0), 0) / 1000
   );
@@ -166,7 +204,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     stats: {
-      total: (translationCount.count ?? 0) + (recordingCount.count ?? 0) + (transcriptionCount.count ?? 0),
+      total: totalCount,
       today: (todayTranslations.count ?? 0) + (todayRecordings.count ?? 0) + (todayTranscriptions.count ?? 0),
       approved,
       pending,

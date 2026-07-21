@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auditEvent, checkRateLimit, jsonError, parseJson, requireRole } from "@/lib/api";
 import { reviewSchema } from "@/lib/contracts";
+import { refreshContributorReputation } from "@/lib/metrics";
 import { decideReviewConsensus } from "@/lib/quality";
 
 export async function POST(request: Request) {
@@ -34,7 +35,9 @@ export async function POST(request: Request) {
 
   if (targetLookupError) return jsonError(targetLookupError.message, 500);
 
-  const targetContributorId = "contributor_id" in target ? target.contributor_id : null;
+  const targetContributorId = "contributor_id" in target && typeof target.contributor_id === "string"
+    ? target.contributor_id
+    : null;
   let targetLanguageCode = "language_code" in target ? target.language_code : null;
   if (!targetLanguageCode && parsed.data.targetType === "transcription" && "recording_id" in target) {
     const { data: recording, error: recordingError } = await auth.supabase
@@ -117,6 +120,10 @@ export async function POST(request: Request) {
       confidence: decision.confidence,
       decided_by: auth.user.id
     });
+  }
+
+  if (targetContributorId) {
+    await refreshContributorReputation(auth.supabase, targetContributorId).catch(() => null);
   }
 
   await auditEvent(auth.user.id, "review_submitted", parsed.data.targetType, parsed.data.targetId, {
