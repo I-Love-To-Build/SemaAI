@@ -1,3 +1,18 @@
+delete from reviews
+where id in (
+  select id
+  from (
+    select
+      id,
+      row_number() over (
+        partition by reviewer_id, target_type, target_id
+        order by created_at desc nulls last, id desc
+      ) as duplicate_rank
+    from reviews
+  ) ranked_reviews
+  where duplicate_rank > 1
+);
+
 create unique index if not exists reviews_one_per_reviewer_target_idx
 on reviews(reviewer_id, target_type, target_id);
 

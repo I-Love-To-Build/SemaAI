@@ -4442,26 +4442,27 @@ audio {
 
   .portalMain {
     min-height: 100vh;
-    padding-bottom: 92px;
+    padding-top: 76px;
   }
 
   .portalSidebar {
     position: fixed;
     z-index: 80;
-    right: 10px;
-    bottom: 10px;
-    left: 10px;
-    top: auto;
-    height: 70px;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    top: 0;
+    height: 76px;
     display: grid;
     align-items: center;
-    padding: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 22px;
+    padding: 10px 12px 9px;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0;
     background:
       linear-gradient(90deg, var(--sema-black) 0 33.33%, var(--sema-red) 33.33% 66.66%, var(--sema-green) 66.66%) top / 100% 3px no-repeat,
       rgba(16, 20, 16, 0.96);
-    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.18);
     backdrop-filter: blur(18px);
   }
 
@@ -4472,12 +4473,20 @@ audio {
   }
 
   .portalNav {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 4px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .portalNav::-webkit-scrollbar {
+    display: none;
   }
 
   .portalNav button {
+    flex: 0 0 auto;
+    width: 76px;
     min-width: 0;
     min-height: 52px;
     display: grid;
@@ -4526,7 +4535,7 @@ audio {
 
   .portalTopbar {
     position: sticky;
-    top: 0;
+    top: 76px;
     z-index: 60;
     min-height: 62px;
     padding: 10px 14px;
@@ -4789,8 +4798,8 @@ audio {
   }
 
   .portalSidebar {
-    right: 6px;
-    bottom: 6px;
-    left: 6px;
+    right: 0;
+    bottom: auto;
+    left: 0;
   }
 }
