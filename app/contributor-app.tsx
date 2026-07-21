@@ -21,6 +21,11 @@ type Profile = {
   home_language_code: string | null;
   county: string | null;
   reviewer_score: number;
+  payout_method?: "none" | "mpesa" | "airtel_money" | "bank_transfer" | "other" | null;
+  payout_phone?: string | null;
+  payout_name?: string | null;
+  payout_notes?: string | null;
+  payout_opt_in?: boolean | null;
   consent_records?: Array<{ id: string }>;
   speaker_profiles?: Array<{ id: string; language_code: string }>;
 };
@@ -227,6 +232,11 @@ export default function ContributorApp({ languages, initialView = "home" }: { la
   const [displayName, setDisplayName] = useState("");
   const [county, setCounty] = useState("");
   const [languageCode, setLanguageCode] = useState("sw");
+  const [payoutMethod, setPayoutMethod] = useState<"none" | "mpesa" | "airtel_money" | "bank_transfer" | "other">("none");
+  const [payoutPhone, setPayoutPhone] = useState("");
+  const [payoutName, setPayoutName] = useState("");
+  const [payoutNotes, setPayoutNotes] = useState("");
+  const [payoutOptIn, setPayoutOptIn] = useState(false);
   const [sourceLanguageCode, setSourceLanguageCode] = useState<"en" | "sw">("en");
   const [domain, setDomain] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -533,6 +543,11 @@ export default function ContributorApp({ languages, initialView = "home" }: { la
       setDisplayName(data.display_name ?? "");
       setCounty(data.county ?? "");
       setLanguageCode(data.home_language_code ?? "sw");
+      setPayoutMethod(data.payout_method ?? "none");
+      setPayoutPhone(data.payout_phone ?? "");
+      setPayoutName(data.payout_name ?? "");
+      setPayoutNotes(data.payout_notes ?? "");
+      setPayoutOptIn(Boolean(data.payout_opt_in));
       setConsentId(data.consent_records?.[0]?.id ?? "");
       setSpeakerProfileId(data.speaker_profiles?.find((item) => item.language_code === (data.home_language_code ?? "sw"))?.id ?? data.speaker_profiles?.[0]?.id ?? "");
       setMessage("Profile loaded.");
@@ -567,7 +582,12 @@ export default function ContributorApp({ languages, initialView = "home" }: { la
           displayName,
           county,
           homeLanguageCode: languageCode,
-          languages: [languageCode]
+          languages: [languageCode],
+          payoutMethod,
+          payoutPhone,
+          payoutName,
+          payoutNotes,
+          payoutOptIn
         })
       });
       const consent = await api<{ id: string }>("/api/consent", {
@@ -1817,6 +1837,26 @@ export default function ContributorApp({ languages, initialView = "home" }: { la
                     <label>Primary language<select value={languageCode} disabled={isLanguageLocked} onChange={(event) => setLanguageCode(event.target.value)}>{languages.map((language) => <option value={language.code} key={language.code}>{language.name} · {language.family}</option>)}</select></label>
                     {isLanguageLocked && <p className="formHint">Your primary contribution language is locked to protect dataset quality. Multilingual access is granted by reviewers or admins.</p>}
                     <label>Email address<input value={session.user.email ?? ""} disabled /></label>
+                    <div className="formSectionHeader">
+                      <h3>Contributor payout details</h3>
+                      <p>Optional details for future funded missions, stipends, or reimbursements. This does not guarantee payment.</p>
+                    </div>
+                    <label>Preferred payout method
+                      <select value={payoutMethod} onChange={(event) => setPayoutMethod(event.target.value as typeof payoutMethod)}>
+                        <option value="none">Not set</option>
+                        <option value="mpesa">M-Pesa</option>
+                        <option value="airtel_money">Airtel Money</option>
+                        <option value="bank_transfer">Bank transfer</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </label>
+                    <label>Mobile money or payout phone<input value={payoutPhone} onChange={(event) => setPayoutPhone(event.target.value)} placeholder="+254..." /></label>
+                    <label>Registered payout name<input value={payoutName} onChange={(event) => setPayoutName(event.target.value)} placeholder="Name on wallet or account" /></label>
+                    <label className="fullField">Payout notes<textarea value={payoutNotes} onChange={(event) => setPayoutNotes(event.target.value)} placeholder="Optional notes for finance verification, e.g. preferred contact time." /></label>
+                    <label className="toggleRow">
+                      <span><strong>Allow payout contact use</strong><small>Sema may use these details only for approved contributor payouts if funded missions are launched.</small></span>
+                      <input type="checkbox" checked={payoutOptIn} onChange={(event) => setPayoutOptIn(event.target.checked)} />
+                    </label>
                     <button className="primaryButton" type="button" onClick={saveProfile}>Save profile and consent</button>
                   </div>
                 </article>

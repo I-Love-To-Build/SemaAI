@@ -1,3 +1,21 @@
+alter table profiles
+  add column if not exists payout_method text not null default 'none',
+  add column if not exists payout_phone text,
+  add column if not exists payout_name text,
+  add column if not exists payout_notes text,
+  add column if not exists payout_opt_in boolean not null default false;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'profiles_payout_method_check'
+  ) then
+    alter table profiles
+      add constraint profiles_payout_method_check
+      check (payout_method in ('none', 'mpesa', 'airtel_money', 'bank_transfer', 'other'));
+  end if;
+end $$;
+
 create table if not exists missions (
   id uuid primary key default gen_random_uuid(),
   slug text not null unique,

@@ -22,7 +22,12 @@ export const profileSchema = z.object({
   displayName: z.string().min(2).max(120),
   homeLanguageCode: z.string().min(2).optional(),
   county: z.string().max(120).optional(),
-  languages: z.array(z.string().min(2)).length(1)
+  languages: z.array(z.string().min(2)).length(1),
+  payoutMethod: z.enum(["none", "mpesa", "airtel_money", "bank_transfer", "other"]).default("none"),
+  payoutPhone: z.string().max(40).optional(),
+  payoutName: z.string().max(120).optional(),
+  payoutNotes: z.string().max(500).optional(),
+  payoutOptIn: z.boolean().default(false)
 });
 
 export const consentSchema = z.object({

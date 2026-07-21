@@ -14,6 +14,11 @@ create table profiles (
   home_language_code text,
   county text,
   reviewer_score numeric(5,2) not null default 0,
+  payout_method text not null default 'none' check (payout_method in ('none', 'mpesa', 'airtel_money', 'bank_transfer', 'other')),
+  payout_phone text,
+  payout_name text,
+  payout_notes text,
+  payout_opt_in boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

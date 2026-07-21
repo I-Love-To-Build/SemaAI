@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await auth.supabase
     .from("profiles")
-    .select("id,display_name,home_language_code,county,reviewer_score,created_at,updated_at,user_roles(role,language_code),consent_records(id,signed_at),speaker_profiles(id,language_code,created_at)")
+    .select("id,display_name,home_language_code,county,reviewer_score,payout_method,payout_phone,payout_name,payout_notes,payout_opt_in,created_at,updated_at,user_roles(role,language_code),consent_records(id,signed_at),speaker_profiles(id,language_code,created_at)")
     .eq("id", auth.user.id)
     .single();
 
@@ -34,6 +34,11 @@ export async function PUT(request: Request) {
     display_name: parsed.data.displayName,
     home_language_code: parsed.data.homeLanguageCode ?? parsed.data.languages[0],
     county: parsed.data.county ?? null,
+    payout_method: parsed.data.payoutMethod,
+    payout_phone: parsed.data.payoutPhone?.trim() || null,
+    payout_name: parsed.data.payoutName?.trim() || null,
+    payout_notes: parsed.data.payoutNotes?.trim() || null,
+    payout_opt_in: parsed.data.payoutOptIn,
     updated_at: new Date().toISOString()
   });
 
@@ -54,7 +59,9 @@ export async function PUT(request: Request) {
   }
 
   await auditEvent(auth.user.id, "profile_updated", "profile", auth.user.id, {
-    languageCount: parsed.data.languages.length
+    languageCount: parsed.data.languages.length,
+    payoutMethod: parsed.data.payoutMethod,
+    payoutOptIn: parsed.data.payoutOptIn
   });
 
   return NextResponse.json({ ok: true });

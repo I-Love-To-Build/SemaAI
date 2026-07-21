@@ -2033,6 +2033,32 @@ button:disabled {
   gap: 16px;
 }
 
+.formSectionHeader,
+.fullField {
+  grid-column: 1 / -1;
+}
+
+.formSectionHeader {
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+.formSectionHeader h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.formSectionHeader p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.settingsForm textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
 .toggleRow {
   grid-column: 1 / -1;
   display: flex;
