@@ -52,9 +52,35 @@ export async function GET(request: Request) {
 
   if (recordingError) return jsonError(recordingError.message, 500);
 
+  const targetIds = [
+    ...(translations ?? []).map((translation) => translation.id),
+    ...(recordings ?? []).map((recording) => recording.id)
+  ];
+
+  const { data: existingReviews, error: existingReviewError } = targetIds.length
+    ? await auth.supabase
+      .from("reviews")
+      .select("target_type,target_id")
+      .eq("reviewer_id", auth.user.id)
+      .in("target_id", targetIds)
+    : { data: [], error: null };
+
+  if (existingReviewError) return jsonError(existingReviewError.message, 500);
+
+  const reviewedTargets = new Set(
+    (existingReviews ?? []).map((review) => `${review.target_type}:${review.target_id}`)
+  );
+
+  const pendingTranslations = (translations ?? []).filter(
+    (translation) => !reviewedTargets.has(`translation:${translation.id}`)
+  );
+  const pendingRecordings = (recordings ?? []).filter(
+    (recording) => !reviewedTargets.has(`recording:${recording.id}`)
+  );
+
   const bucket = process.env.SEMA_AUDIO_BUCKET || "recordings";
   const recordingRows = await Promise.all(
-    (recordings ?? []).map(async (recording) => {
+    pendingRecordings.map(async (recording) => {
       const { data } = await auth.supabase.storage
         .from(bucket)
         .createSignedUrl(recording.storage_path, 60 * 10);
@@ -63,7 +89,7 @@ export async function GET(request: Request) {
   );
 
   return NextResponse.json({
-    translations: translations ?? [],
+    translations: pendingTranslations,
     recordings: recordingRows,
     roles: roles ?? []
   });

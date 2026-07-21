@@ -96,6 +96,7 @@ export default function ReviewerPortal() {
     if (!session?.access_token) return;
     const key = `${targetType}:${targetId}`;
     setReviewing((current) => ({ ...current, [key]: true }));
+    setStatus("Saving review decision...");
     try {
       const response = await fetch("/api/reviews", {
         method: "POST",
@@ -113,9 +114,22 @@ export default function ReviewerPortal() {
         })
       });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.error || "Review failed.");
+      if (!response.ok && response.status !== 409) throw new Error(payload.error || "Review failed.");
       setNotes((current) => ({ ...current, [key]: "" }));
-      setStatus(`Review saved. Consensus state: ${payload.consensus?.finalState ?? state}.`);
+      setQueue((current) => ({
+        ...current,
+        translations: targetType === "translation"
+          ? current.translations.filter((item) => item.id !== targetId)
+          : current.translations,
+        recordings: targetType === "recording"
+          ? current.recordings.filter((item) => item.id !== targetId)
+          : current.recordings
+      }));
+      if (response.status === 409) {
+        setStatus("You had already reviewed this item, so it was removed from your queue.");
+      } else {
+        setStatus(`Review saved. ${payload.consensus?.decided ? `Final state: ${payload.consensus.finalState}.` : "Waiting for another reviewer to reach consensus."}`);
+      }
       await loadQueue();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Review failed.");
