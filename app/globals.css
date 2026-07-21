@@ -4564,6 +4564,8 @@ audio {
 
   .portalContent {
     width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
     gap: 14px;
     padding: 14px 12px 18px;
   }
@@ -4606,6 +4608,7 @@ audio {
   .homeGrid,
   .contributionLayout,
   .profileGrid {
+    min-width: 0;
     grid-template-columns: 1fr;
   }
 
@@ -4617,6 +4620,7 @@ audio {
   .profileSummary,
   .historyTable,
   .largeEmptyState {
+    min-width: 0;
     border-radius: 18px;
   }
 
@@ -4646,25 +4650,34 @@ audio {
 
   .goalPanel {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
-    gap: 14px;
-    text-align: left;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 12px;
+    text-align: center;
   }
 
   .goalPanel .eyebrow {
-    grid-column: 1 / -1;
+    grid-column: auto;
+    justify-self: start;
   }
 
   .goalRing {
-    width: 104px;
-    height: 104px;
-    margin: 0;
+    width: 118px;
+    height: 118px;
+    margin: 4px auto 6px;
   }
 
   .goalRing::before {
-    width: 78px;
-    height: 78px;
+    width: 90px;
+    height: 90px;
+  }
+
+  .goalPanel h3,
+  .goalPanel p {
+    max-width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    text-wrap: balance;
   }
 
   .activityList article {
