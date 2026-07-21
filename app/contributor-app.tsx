@@ -158,6 +158,39 @@ const missionTemplates = [
   }
 ];
 
+const tutorialSteps: Array<{ title: string; body: string; action: string; view: AppView }> = [
+  {
+    title: "Set up your profile",
+    body: "Choose your main language, region, consent, speaker profile, and optional payout contact.",
+    action: "Open profile",
+    view: "profile"
+  },
+  {
+    title: "Translate and record",
+    body: "Claim a small task batch, translate the item, record yourself saying it, then submit both.",
+    action: "Start batch",
+    view: "contribute"
+  },
+  {
+    title: "Pick vocabulary directly",
+    body: "Browse words, phrases, sentences, terms, idioms, and proverbs without waiting for a batch.",
+    action: "Browse words",
+    view: "vocabulary"
+  },
+  {
+    title: "Follow missions",
+    body: "Work on focused topics like health, agriculture, education, public services, and climate.",
+    action: "See missions",
+    view: "missions"
+  },
+  {
+    title: "Track your work",
+    body: "Check review status, accepted work, points, and items that need changes.",
+    action: "My work",
+    view: "history"
+  }
+];
+
 const selectedCorpusItemKey = "sema:selected-corpus-item";
 const allowedAudioContentTypes = new Set(["audio/webm", "audio/wav", "audio/mpeg", "audio/mp4", "audio/ogg"]);
 
@@ -1506,6 +1539,28 @@ export default function ContributorApp({ languages, initialView = "home" }: { la
                 <article><span>Approved</span><strong>{stats.approved}</strong><small>{approvalRate}% quality rate</small></article>
                 <article><span>Awaiting review</span><strong>{stats.pending}</strong><small>Community validation</small></article>
                 <article><span>Voice contributed</span><strong>{Math.floor(stats.audioSeconds / 60)}m</strong><small>{stats.audioSeconds % 60}s recorded</small></article>
+              </section>
+
+              <section className="tutorialPanel">
+                <div className="sectionTitle">
+                  <div>
+                    <p className="eyebrow">Start here</p>
+                    <h2>How to move around Sema AI</h2>
+                  </div>
+                  <button className="textButton" type="button" onClick={() => navigateView("settings")}>Settings</button>
+                </div>
+                <div className="tutorialSteps">
+                  {tutorialSteps.map((step, index) => (
+                    <article key={step.title}>
+                      <span>{index + 1}</span>
+                      <div>
+                        <h3>{step.title}</h3>
+                        <p>{step.body}</p>
+                        <button type="button" onClick={() => navigateView(step.view)}>{step.action}</button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
               </section>
 
               <section className="homeGrid">

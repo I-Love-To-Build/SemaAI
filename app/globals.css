@@ -1129,8 +1129,65 @@ button:disabled {
 .goalPanel,
 .settingsPanel,
 .profileSummary,
+.tutorialPanel,
 .guidancePanel {
   padding: 22px;
+}
+
+.tutorialPanel {
+  border: 1px solid #dbe3df;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff, #f7fbf7);
+  box-shadow: 0 18px 45px rgba(18, 18, 18, 0.04);
+}
+
+.tutorialSteps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tutorialSteps article {
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #dce5df;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.tutorialSteps article > span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 999px;
+  background: var(--sema-green);
+  color: #fff;
+  font-weight: 900;
+}
+
+.tutorialSteps h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.tutorialSteps p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.tutorialSteps button {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #d7e0da;
+  border-radius: 8px;
+  background: #f8faf8;
+  color: var(--sema-green-deep);
+  font-weight: 900;
 }
 
 .sectionTitle,
@@ -2136,6 +2193,10 @@ button:disabled {
 }
 
 @media (max-width: 1100px) {
+  .tutorialSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .homeGrid,
   .contributionLayout,
   .profileGrid,
@@ -4640,6 +4701,7 @@ audio {
 
   .homeSection,
   .goalPanel,
+  .tutorialPanel,
   .focusedTask,
   .guidancePanel,
   .settingsPanel,
@@ -4651,6 +4713,10 @@ audio {
   }
 
   .taskModeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tutorialSteps {
     grid-template-columns: 1fr;
   }
 
